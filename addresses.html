@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Addresses | Sanrico Mercantile Inc.</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/tooltip.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/header.css">
+    <script src="js/headerSearch.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="css/history.css">
+    <style>
+        /* Address Page Styles */
+        .addresses-section {
+            padding: 2rem 0;
+            min-height: 60vh;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .addresses-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .back-to-profile i {
+            margin-right: 0.5rem;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .page-header h1 {
+            color: #222;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .page-header p {
+            color: #666;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .addresses-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .addresses-title {
+            font-size: 1.5rem;
+            color: #222;
+            margin: 0;
+        }
+        
+        .btn-add-address {
+            background: linear-gradient(90deg, #e63946, #dc2626);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-add-address:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+        }
+        
+        .addresses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .address-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        
+        .address-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .address-card.default {
+            border-color: #e63946;
+        }
+        
+        .address-card.default::before {
+            content: "Default";
+            position: absolute;
+            top: -10px;
+            right: 15px;
+            background: #e63946;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .address-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .address-label {
+            font-weight: 600;
+            color: #222;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        .address-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-icon:hover {
+            background: #f8f9fa;
+            color: #222;
+        }
+        
+        .btn-icon.edit:hover {
+            color: #007bff;
+        }
+        
+        .btn-icon.delete:hover {
+            color: #dc3545;
+        }
+        
+        .address-details {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .address-details p {
+            margin: 0.25rem 0;
+        }
+        
+        .address-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .default-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #e63946;
+        }
+        
+        .toggle-switch::before {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-switch.active::before {
+            transform: translateX(26px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+        }
+        
+        .empty-state .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        /* Address Modal Styles */
+        .address-modal .modal-content {
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .address-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .autocomplete-container {
+            position: relative;
+        }
+        
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .suggestion-item {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+        
+        .suggestion-item:hover,
+        .suggestion-item.highlighted {
+            background: #f8f9fa;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .suggestion-main {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .suggestion-sub {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+        
+        .btn-save {
+            background: #e63946;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .btn-save:hover {
+            background: #dc2626;
+        }
+        
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #e63946;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .addresses-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .addresses-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .address-controls {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="social-links">
+                <span>Want to be a supplier? Contact us!</span>
+                <a href="#"><img src="images/icons8-whatsapp-50.png" alt="Facebook"></a>
+                <a href="#"><img src="images/icons8-viber-50.png" alt="Viber"></a>
+            </div>
+            <div class="user-links">
+                <button class="notification-bell"><i class="fa fa-bell"></i> Notifications</button>
+                <div class="notification-dropdown">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                    </div>
+                    <div class="notification-list">
+                        <div class="no-notifications">
+                            <img src="images/ruined-building-house-home-broken-house-svgrepo-com.svg" alt="No notifications">
+                            <p>No current notifications</p>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" id="topLoginBtn">Login</a>
+                <div id="userDropdown" class="user-dropdown user-dropdown-hidden">
+                    <a href="profile.html" class="dropdown-item">My Account</a>
+                    <a href="order-history.html" class="dropdown-item">Order History</a>
+                    <a href="addresses.html" class="dropdown-item">My Addresses</a>
+                    <a href="#" id="logoutBtn" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo-container">
+                <a href="index.html" class="logo-link">
+                    <div class="logo-wrapper" data-tooltip="Take me home">
+                    <img src="images/sanrico_logo_1.png" alt="Sanrico Mercantile Logo" class="logo-img">
+                    </div>
+                    <div class="logo">
+                        <span>Sanrico</span> <span>Mercantile</span>
+                    </div>
+                </a>
+            </div>
+            <form class="header-search">
+                <input type="text" placeholder="Search for products..." />
+                <button type="submit">
+                    <svg width="20" height="20" fill="none" stroke="#e53935" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+            </form>
+            <div class="header-icons">
+                <a href="#" class="cart-btn" id="cartBtn">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+                <div class="cart-dropdown cart-dropdown-hidden" id="cartDropdown">
+                  <div class="cart-dropdown-content" id="cartDropdownContent">
+                    <!-- Content will be filled by JS -->
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="aboutus.html">About Us</a>
+                <a href="faq.html">FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <section class="addresses-section">
+            <div class="addresses-container">
+                <!-- Back to Profile Link -->
+                <a href="profile.html" class="back-to-profile">
+                    <i class="fa fa-arrow-left"></i>
+                    Back to Profile
+                </a>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>My Addresses</h1>
+                    <p>Manage your delivery addresses. Set a default address for faster checkout.</p>
+                </div>
+
+                <!-- Addresses Section -->
+                <div class="addresses-header">
+                    <h2 class="addresses-title">Saved Addresses</h2>
+                    <button class="btn-add-address" id="addAddressBtn">
+                        <i class="fa fa-plus"></i>
+                        Add New Address
+                    </button>
+                </div>
+
+                <div class="addresses-grid" id="addressesGrid">
+                    <!-- Addresses will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Address Modal -->
+    <!-- The following static modal is removed to avoid duplicate modals. -->
+
+    <!-- Footer -->
+    <!-- <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="shop.html?category=power-tools">Power Tools</a></li>
+                        <li><a href="shop.html?category=hand-tools">Hand Tools</a></li>
+                        <li><a href="shop.html?category=plumbing">Plumbing</a></li>
+                        <li><a href="shop.html?category=electrical">Electrical</a></li>
+                        <li><a href="shop.html?category=building-materials">Building Materials</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Information</h4>
+                    <ul>
+                        <li><a href="aboutus.html">About Us</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="profile.html">User Info</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="order-history.html">Order History</a></li>
+                        <li><a href="addresses.html">My Addresses</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul>
+                        <li>Regalado Avenue</li>
+                        <li>Fairview, Quezon City</li>
+                        <li>Phone: (555) 123-4567</li>
+                        <li>Email: <a href="mailto:support@sanricomercantile@gmail.com">support@sanricomercantile@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 Sanrico Mercantile Inc. All Rights Reserved.
+            </div>
+        </div>
+    </footer> -->
+
+    <!-- JavaScript Files -->
+    <script src="js/auth.js"></script>
+    <script src="js/stockManager.js"></script>
+    <script src="js/loginButton.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/headerSearch.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/addressModal.js"></script>
+    
+    <script>
+        // Global variables
+        let currentUser = null;
+        let userAddresses = [];
+        let editingAddressId = null;
+        let autocompleteCache = new Map();
+        
+        // Geoapify API configuration
+        const GEOAPIFY_API_KEY = 'a85e803098a1455da0da79145e5ca8e1';
+        const GEOAPIFY_BASE_URL = 'https://api.geoapify.com/v1/geocode/autocomplete';
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication
+            if (!Auth.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = Auth.getCurrentUser();
+            
+            // Initialize page components
+            await initializeAddresses();
+            setupEventListeners();
+            
+            // Update cart count
+            Auth.updateCartCount();
+        });
+
+        // Initialize addresses
+        async function initializeAddresses() {
+            try {
+                userAddresses = await loadUserAddresses();
+                renderAddresses();
+            } catch (error) {
+                console.error('Error loading addresses:', error);
+                showToast('Failed to load addresses', 'error');
+                userAddresses = [];
+                renderAddresses();
+            }
+        }
+
+        // Load user addresses from database/storage
+        async function loadUserAddresses() {
+            try {
+                // Fetch from backend API instead of localStorage
+                const response = await fetch('http://localhost:3000/api/user-addresses?userId=' + encodeURIComponent(currentUser.id));
+                if (!response.ok) throw new Error('Failed to fetch addresses from server');
+                const addresses = await response.json();
+                // Map _id to id for frontend compatibility
+                return addresses.map(addr => ({
+                    ...addr,
+                    id: addr.id || addr._id // Use id if present, else _id
+                }));
+            } catch (error) {
+                console.error('Error loading addresses from server:', error);
+                return [];
+            }
+        }
+
+        // Save user addresses to database/storage (no longer used, keep for reference)
+        async function saveUserAddresses() {
+            // No-op: All address changes are now handled via API
+        }
+
+        // Render addresses
+        function renderAddresses() {
+            const grid = document.getElementById('addressesGrid');
+            
+            if (userAddresses.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon">🏠</div>
+                        <h3>No addresses saved</h3>
+                        <p>Add your first address to get started with faster checkout.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = userAddresses.map((address, index) => `
+                <div class="address-card ${address.isDefault ? 'default' : ''}" data-address-id="${address.id}">
+                    <div class="address-header">
+                        <h4 class="address-label">${address.label}</h4>
+                        <div class="address-actions">
+                            <button class="btn-icon edit" onclick="editAddress('${address.id}')" title="Edit">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn-icon delete" onclick="deleteAddress('${address.id}')" title="Delete">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="address-details">
+                        <p><strong>${address.streetAddress}</strong></p>
+                        <p>${address.barangay}</p>
+                        <p>${address.city}, ${address.postalCode}</p>
+                        <p>${address.province}</p>
+                    </div>
+                    
+                    <div class="address-controls">
+                        <div class="default-toggle">
+                            <span>Default address</span>
+                            <div class="toggle-switch ${address.isDefault ? 'active' : ''}" 
+                                 onclick="toggleDefault('${address.id}')">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Add address button
+            document.getElementById('addAddressBtn').addEventListener('click', () => {
+                window.AddressModal.show();
+                window.AddressModal.setOnAddressSaved(() => {
+                    // Reload addresses after saving
+                    initializeAddresses();
+                });
+            });
+        }
+
+        // Edit address
+        function editAddress(addressId) {
+            editingAddressId = addressId;
+            const modal = document.getElementById('addressModal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('addressForm');
+            
+            if (addressId) {
+                // Edit mode
+                title.textContent = 'Edit Address';
+                const address = userAddresses.find(addr => addr.id === addressId);
+                if (address) {
+                    document.getElementById('addressLabel').value = address.label;
+                    document.getElementById('streetAddress').value = address.streetAddress;
+                    document.getElementById('barangay').value = address.barangay;
+                    document.getElementById('city').value = address.city;
+                    document.getElementById('postalCode').value = address.postalCode;
+                    document.getElementById('province').value = address.province;
+                    document.getElementById('setAsDefault').checked = address.isDefault;
+                }
+            } else {
+                // Add mode
+                title.textContent = 'Add New Address';
+                form.reset();
+            }
+            
+            modal.classList.add('show');
+        }
+
+        // Delete address via API
+        async function deleteAddress(addressId) {
+            if (!confirm('Are you sure you want to delete this address?')) {
+                return;
+            }
+            try {
+                const response = await fetch('http://localhost:3000/api/user-addresses/' + encodeURIComponent(addressId), {
+                    method: 'DELETE'
+                });
+                if (!response.ok) throw new Error('Failed to delete address');
+                    showToast('Address deleted successfully', 'success');
+                await initializeAddresses();
+            } catch (error) {
+                console.error('Error deleting address:', error);
+                showToast('Failed to delete address', 'error');
+            }
+        }
+
+        // Toggle default address via API
+        async function toggleDefault(addressId) {
+            try {
+                const response = await fetch('http://localhost:3000/api/user-addresses/' + encodeURIComponent(addressId) + '/default', {
+                    method: 'PUT'
+                });
+                if (!response.ok) throw new Error('Failed to update default address');
+                showToast('Default address updated', 'success');
+                await initializeAddresses();
+            } catch (error) {
+                console.error('Error updating default address:', error);
+                showToast('Failed to update default address', 'error');
+            }
+        }
+
+        // Global function to check if user has addresses
+        window.hasAddresses = function() {
+            return userAddresses && userAddresses.length > 0;
+        };
+    </script>
+    
+    <!-- Toast Container -->
+    <div class="toast" id="toast"></div>
+</body>
+</html> 

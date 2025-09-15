@@ -1,0 +1,148 @@
+/* Stock Display */
+.stock-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 20;
+    font-weight: 600;
+    color: #333;
+    border: 2px solid #e0e0e0;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    visibility: hidden;
+    text-align: center;
+    min-width: 160px;
+    max-width: 200px;
+}
+
+.stock-display-name {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    color: #333;
+    line-height: 1.2;
+}
+
+.stock-display-price {
+    font-size: 1rem;
+    margin-bottom: 6px;
+    color: #2E7D32;
+}
+
+.stock-display-quantity {
+    font-size: 0.9rem;
+    padding-top: 6px;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Apply to all card types */
+.product-card,
+.category-card,
+.related-product-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card:hover .stock-display,
+.category-card:hover .stock-display,
+.related-product-card:hover .stock-display {
+    opacity: 1;
+    visibility: visible;
+}
+
+.product-card:hover .product-link,
+.category-card:hover .category-link,
+.related-product-card:hover .related-product-link {
+    filter: blur(2px);
+    transition: filter 0.3s ease;
+}
+
+/* Stock Status Colors */
+.stock-display.in-stock {
+    border-color: #4CAF50;
+}
+
+.stock-display.in-stock .stock-display-quantity {
+    color: #2E7D32;
+}
+
+.stock-display.low-stock {
+    border-color: #FFA000;
+}
+
+.stock-display.low-stock .stock-display-quantity {
+    color: #E65100;
+}
+
+.stock-display.out-of-stock {
+    border-color: #F44336;
+}
+
+.stock-display.out-of-stock .stock-display-quantity {
+    color: #C62828;
+}
+
+/* Ensure links don't interfere with stock display */
+.product-link,
+.category-link,
+.related-product-link {
+    position: relative;
+    z-index: 1;
+}
+
+/* Related product card specific styles */
+.related-product-card {
+    position: relative;
+}
+
+.related-product-card .related-product-img {
+    position: relative;
+}
+
+.related-product-card .related-product-content {
+    position: relative;
+}
+
+.related-product-card .stock-display {
+    z-index: 30;
+}
+
+/* Related product card hover effect */
+.related-product-card:hover .related-product-link {
+    filter: blur(2px);
+    transition: filter 0.3s ease;
+}
+
+.related-product-card:hover .stock-display {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Category card specific styles */
+.category-card {
+    position: relative;
+}
+
+.category-card .category-img {
+    position: relative;
+}
+
+.category-card .category-img-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    z-index: 2;
+}
+
+.category-card .stock-display {
+    z-index: 20;
+} 

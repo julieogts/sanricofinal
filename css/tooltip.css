@@ -1,0 +1,48 @@
+/* Tooltip styling for consistent use across the site */
+.logo-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.logo-img {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.logo-wrapper:hover .logo-img {
+    transform: scale(1.1);
+}
+
+.logo-wrapper::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: -40px;
+    transform: translateX(-50%);
+    background-color: rgba(51, 51, 51, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    pointer-events: none;
+}
+
+.logo-wrapper:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: -35px;
+}
+
+/* Responsive adjustments for tooltips */
+@media (max-width: 480px) {
+    .logo-wrapper::after {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+} 

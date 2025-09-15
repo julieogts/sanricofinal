@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>FAQ | Sanrico Co.</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/verification-dialog.css">
+    <link rel="stylesheet" href="css/tooltip.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/faq.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="js/simple-auth-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/loginButton.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/headerSearch.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/faq.js"></script>
+    <script src="js/validation.js"></script>
+    
+    <style>
+        .search-container {
+            position: relative;
+            width: 500px; /* Adjust as needed */
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 48px 12px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            border-radius: 50%;
+            height: 36px;
+            width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 2;
+        }
+
+        .search-btn:hover {
+            background: #f5f5f5;
+        }
+
+        /* Remove borders from header elements */
+        .top-bar, .header, .main-nav,
+        .top-bar *, .header *, .main-nav *,
+        .container, .header-container, .nav-links,
+        .logo-container, .header-search, .header-icons,
+        .cart-btn, .cart-count, .nav-links a {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Ensure seamless gradient */
+        .top-bar, .header, .main-nav {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .container {
+            margin: 0 auto !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="social-links">
+                <span>Welcome to</span>
+            </div>
+            <div class="user-links">
+                <div class="notification-container">
+                    <button class="notification-btn" id="notificationBtn">
+                        <span class="notification-label">Notifications</span>
+                        <i class="fa fa-bell notification-icon"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                            <button class="clear-all-btn" id="clearAllBtn">Clear All</button>
+                    </div>
+                        <div class="notification-list" id="notificationList">
+                            <!-- Notifications will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                <a href="#" id="topLoginBtn">Login</a>
+                <div id="userDropdown" class="user-dropdown" style="display:none;">
+                    <a href="profile.html" class="dropdown-item">My Account</a>
+                    <a href="order-history.html" class="dropdown-item">Order History</a>
+                    <!-- <a href="#" class="dropdown-item">My Wish List</a> -->
+                    <a href="addresses.html" class="dropdown-item">My Addresses</a>
+                    <a href="#" id="logoutBtn" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo-container">
+                <a href="index.html" class="logo-link">
+                    <div class="logo-wrapper" data-tooltip="Take me home">
+                    <img src="images/sanrico_logo_1.png" alt="Sanrico Mercantile Logo" class="logo-img">
+                    </div>
+                    <span class="logo">
+                        <span>Sanrico</span> <span>Mercantile</span>
+                    </span>
+                </a>
+            </div>
+            <form class="header-search">
+                <input type="text" placeholder="Search for products..." />
+                <button type="submit">
+                    <svg width="20" height="20" fill="none" stroke="#e53935" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+            </form>
+            <div class="header-icons">
+                <a href="#" class="cart-btn" id="cartBtn">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+                <div class="cart-dropdown" id="cartDropdown" style="display: none;">
+                  <div class="cart-dropdown-content" id="cartDropdownContent">
+                    <!-- Content will be filled by JS -->
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="aboutus.html">About Us</a>
+                <a href="faq.html" class="active">FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- FAQ Section -->
+    <section class="faq">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="accordion">
+                <div class="accordion-item">
+                    <button class="accordion-header">What types of products do you sell?</button>
+                    <div class="accordion-content">
+                        <p>We sell construction materials, tools, and supplies for building and maintenance projects.</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">Do you offer delivery for large items?</button>
+                    <div class="accordion-content">
+                        <p>Please contact us to arrange special requests for deliveries.</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">Can I return a product if it's faulty?</button>
+                    <div class="accordion-content">
+                        <p>Yes, faulty items can be returned and/or exchanged within 7 days with the original receipt.</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-header">What are the available payment options?</button>
+                    <div class="accordion-content">
+                        <p>GCash, bank transfer, and cheque are available online. For other methods, please visit the physical store.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="shop.html?category=power-tools">Power Tools</a></li>
+                        <li><a href="shop.html?category=hand-tools">Hand Tools</a></li>
+                        <li><a href="shop.html?category=plumbing">Plumbing</a></li>
+                        <li><a href="shop.html?category=electrical">Electrical</a></li>
+                        <li><a href="shop.html?category=building-materials">Building Materials</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Information</h4>
+                    <ul>
+                        <li><a href="aboutus.html">About Us</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="profile.html">User Info</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="order-history.html">Order History</a></li>
+                        <li><a href="addresses.html">My Addresses</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul>
+                        <li>Regalado Avenue</li>
+                        <li>Fairview, Quezon City</li>
+                        <li>Phone: (555) 123-4567</li>
+                        <li>Email: <a href="mailto:support@sanricomercantile@gmail.com">support@sanricomercantile@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 Sanrico Mercantile Inc. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">×</button>
+            <h2 class="modal-title">Welcome Back</h2>
+            
+            <!-- Login Mode Tabs -->
+            <div class="tab-buttons" id="loginTabs">
+                                <button class="tab-btn active" data-tab="user-login">User Login</button>
+                <button class="tab-btn" data-tab="staff-login">Staff Login</button>
+            </div>
+            
+            <div class="tab-container">
+                
+                <!-- User Login Tab -->
+            <div class="tab-content active" id="user-login">
+                    <div class="form-group">
+                        <label for="user-email">Email Address</label>
+                        <input type="email" id="user-email" class="form-control" placeholder="Enter your email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="user-password">Password</label>
+                        <input type="password" id="user-password" class="form-control" placeholder="Enter your password">
+                    </div>
+                    <button class="btn" id="userLoginSubmitBtn">Sign In</button>
+                    
+                    <div class="signup-prompt" style="text-align: center; margin: 16px 0;">
+                        <span style="color: #7f8c8d; font-size: 14px;">Don't have an account? </span>
+                        <button type="button" class="signup-link" onclick="showRegistrationModal()" style="background: none; border: none; color: #3498db; font-size: 14px; font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline;">Create one today</button>
+                    </div>
+                    
+                    <div class="login-separator">
+                        <div></div>
+                        <span>or continue with</span>
+                        <div></div>
+                    </div>
+                    
+                    <div class="google-signin-container">
+                        <div id="g_id_onload"
+                             data-client_id="856316440062-00drlhn0s99moqu4a0ktbvgrk0l4mda2.apps.googleusercontent.com"
+                             data-callback="handleGoogleSignIn"
+                             data-auto_prompt="false">
+                        </div>
+                        <div class="g_id_signin" 
+                             data-type="standard" 
+                             data-size="large" 
+                             data-theme="outline" 
+                             data-text="sign_in_with" 
+                             data-shape="rectangular" 
+                             data-logo_alignment="left"
+                             title="Sign in/Sign up using a Google account">
+                        </div>
+                    </div>
+                    
+                    <div class="forgot-password-prompt" style="text-align: center; margin: 16px 0 0 0;">
+                        <span style="color: #7f8c8d; font-size: 14px;">Forgot your password? </span>
+                        <button type="button" class="forgot-password-link" onclick="showRegistrationModal('forgot-password')" style="background: none; border: none; color: #3498db; font-size: 14px; font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline;">Retrieve it today</button>
+                    </div>
+                </div>
+
+                <!-- Staff Login Tab -->
+                <div class="tab-content" id="staff-login">
+                    <div class="form-group">
+                        <label for="staff-id">Staff Username</label>
+                        <input type="text" id="staff-id" class="form-control" placeholder="Enter your staff username">
+                    </div>
+                    <div class="form-group">
+                        <label for="staff-password">Password</label>
+                        <input type="password" id="staff-password" class="form-control" placeholder="Enter your password">
+                    </div>
+                    <button class="btn" id="staffLoginSubmitBtn">Staff Sign In</button>
+                    
+                    <div class="staff-login-note" style="text-align: center; margin-top: 16px; color: #7f8c8d; font-size: 14px;">
+                        Staff credentials only. No social login available.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div class="modal" id="registrationModal">
+        <div class="modal-content">
+            <button class="modal-close" id="registrationModalClose">×</button>
+            <h2 class="modal-title">Create Account</h2>
+            
+            <!-- Registration Mode Tabs -->
+            <div class="tab-buttons" id="registrationTabs">
+                <button class="tab-btn active" data-tab="user-signup">Register</button>
+                <button class="tab-btn" data-tab="forgot-password">Account Recovery</button>
+            </div>
+            
+            <div class="tab-container">
+                
+                <!-- User Signup Tab -->
+                <div class="tab-content active" id="user-signup">
+                    <div class="form-group">
+                        <label for="signup-fullname">Full Name</label>
+                        <input type="text" id="signup-fullname" class="form-control" placeholder="Enter your full name">
+                        <div class="error-message"></div>
+                        <div class="success-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" class="form-control" placeholder="Enter your email address">
+                        <div class="error-message"></div>
+                        <div class="success-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" class="form-control" placeholder="Create a strong password">
+                        <div class="password-strength">
+                            <div class="strength-bar">
+                                <div class="strength-fill"></div>
+                            </div>
+                            <div class="strength-text"></div>
+                        </div>
+                        <div class="error-message"></div>
+                        <div class="success-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm-password">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" class="form-control" placeholder="Confirm your password">
+                        <div class="error-message"></div>
+                        <div class="success-message"></div>
+                    </div>
+                    <button class="btn" id="userSignupSubmitBtn">Create My Account</button>
+                    
+                    <div class="signup-prompt" style="text-align: center; margin: 16px 0;">
+                        <span style="color: #7f8c8d; font-size: 14px;">Already have an account? </span>
+                        <button type="button" class="login-link" onclick="showLoginModal()" style="background: none; border: none; color: #3498db; font-size: 14px; font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline;">Sign in here</button>
+                    </div>
+                    
+                    <div class="login-separator">
+                        <div></div>
+                        <span>or continue with</span>
+                        <div></div>
+                    </div>
+                    
+                    <div class="google-signin-container">
+                        <div id="g_id_onload"
+                             data-client_id="856316440062-00drlhn0s99moqu4a0ktbvgrk0l4mda2.apps.googleusercontent.com"
+                             data-callback="handleGoogleSignIn"
+                             data-auto_prompt="false">
+                        </div>
+                        <div class="g_id_signin" 
+                             data-type="standard" 
+                             data-size="large" 
+                             data-theme="outline" 
+                             data-text="sign_up_with" 
+                             data-shape="rectangular" 
+                             data-logo_alignment="left"
+                             title="Sign up using a Google account">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forgot Password Tab -->
+                <div class="tab-content" id="forgot-password">
+                    <div class="form-group">
+                        <label for="forgot-email">Email Address</label>
+                        <input type="email" id="forgot-email" class="form-control" placeholder="Enter your email address">
+                        <div class="error-message"></div>
+                        <div class="success-message"></div>
+                    </div>
+                    <button class="btn" id="forgotPasswordSubmitBtn">Send Recovery Email</button>
+                    
+                    <div class="signup-prompt" style="text-align: center; margin: 16px 0;">
+                        <span style="color: #7f8c8d; font-size: 14px;">Remember your password? </span>
+                        <button type="button" class="login-link" onclick="showLoginModal()" style="background: none; border: none; color: #3498db; font-size: 14px; font-weight: 600; cursor: pointer; padding: 0; text-decoration: underline;">Sign in here</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if logged in as staff and redirect if needed
+        if (Auth.redirectIfStaff()) {
+            // Stop further execution if redirecting
+            throw new Error('Redirecting to staff dashboard');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // Update cart count
+                Auth.updateCartCount();
+                
+                // Update login/signup buttons based on auth state
+                const currentUser = Auth.getCurrentUser();
+                if (currentUser) {
+                    // User is logged in
+                    const topLoginBtn = document.getElementById('topLoginBtn');
+                    const topSignUpBtn = document.getElementById('topSignUpBtn');
+                    if (topLoginBtn) {
+                        topLoginBtn.textContent = currentUser.fullName || 'My Account';
+                        topLoginBtn.href = currentUser.isStaff ? 'staff-dashboard.html' : 'profile.html';
+                        topLoginBtn.removeEventListener('click', showLoginModal);
+                    }
+                    if (topSignUpBtn) {
+                        topSignUpBtn.textContent = 'Logout';
+                        topSignUpBtn.removeEventListener('click', showLoginModal);
+                        topSignUpBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            Auth.logout();
+                            window.location.reload();
+                        });
+                    }
+                }
+                
+                // Initialize accordion
+                const accordionHeaders = document.querySelectorAll('.accordion-header');
+                accordionHeaders.forEach(header => {
+                    header.addEventListener('click', function() {
+                        const accordionItem = this.parentElement;
+                        const accordionContent = accordionItem.querySelector('.accordion-content');
+                
+                // Toggle active class
+                accordionItem.classList.toggle('active');
+                
+                        // Toggle max-height for smooth animation
+                if (accordionItem.classList.contains('active')) {
+                    accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px';
+                } else {
+                    accordionContent.style.maxHeight = '0';
+                }
+                
+                        // Close other accordions (optional - for one open at a time)
+                document.querySelectorAll('.accordion-item').forEach(item => {
+                    if (item !== accordionItem && item.classList.contains('active')) {
+                        item.classList.remove('active');
+                        item.querySelector('.accordion-content').style.maxHeight = '0';
+                    }
+                });
+            });
+        });
+            } catch (error) {
+                console.error('Error during initialization:', error);
+            }
+        });
+
+        // Modal functions are now handled by js/login.js centrally
+
+        // Top bar login/signup handlers are now handled by login.js
+
+        // Cart button redirect
+        document.getElementById('cartBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!Auth.isLoggedIn()) {
+                showToast('Please log in to view your cart.');
+                document.getElementById('loginModal').classList.add('show');
+            } else {
+                window.location.href = 'cart.html';
+            }
+        });
+
+        // Add Google Sign-In handler function
+        function handleGoogleSignIn(response) {
+            console.log('Google Sign-In Response:', response);
+            const idToken = response.credential;
+            if (!idToken) {
+                console.error('No idToken received');
+                showToast('Google Sign-In failed: No token received');
+                return;
+            }
+            // Try login first
+            let result = Auth.googleLogin(idToken);
+            console.log('Login Result:', result);
+            if (!result.success && result.message.includes("not registered")) {
+                // If login fails due to user not existing, attempt registration
+                result = Auth.googleRegister(idToken);
+                console.log('Registration Result:', result);
+            }
+            showToast(result.message);
+            if (result.success) {
+                document.getElementById('loginModal').classList.remove('show');
+                window.location.reload(); // Reload to update header
+            }
+        }
+
+        // Scroll to Top functionality
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+    
+    <!-- Toast Container -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+</body>
+</html>

@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Profile | Sanrico Mercantile Inc.</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/verification-dialog.css">
+    <link rel="stylesheet" href="css/tooltip.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="js/simple-auth-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/loginButton.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/headerSearch.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/profile.js"></script>
+    <style>
+        .search-container {
+            position: relative;
+            width: 500px; /* Adjust as needed */
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 48px 12px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            border-radius: 50%;
+            height: 36px;
+            width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 2;
+        }
+
+        .search-btn:hover {
+            background: #f5f5f5;
+        }
+
+        /* Remove borders from header elements */
+        .top-bar, .header, .main-nav,
+        .top-bar *, .header *, .main-nav *,
+        .container, .header-container, .nav-links,
+        .logo-container, .header-search, .header-icons,
+        .cart-btn, .cart-count, .nav-links a {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Ensure seamless gradient */
+        .top-bar, .header, .main-nav {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .container {
+            margin: 0 auto !important;
+        }
+        
+        /* Address form styles */
+        .address-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .remove-address-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        #profile-add-address-line {
+            padding: 2px 10px;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            min-height: auto;
+        }
+        
+        .address-section {
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        /* Remove nickname button styles */
+        .input-with-remove-btn {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        
+        .btn-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 2;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .btn-icon:hover {
+            background-color: var(--accent);
+        }
+        
+        /* Edit/Save button styles */
+        #editSaveProfileBtn .save-icon {
+            display: none;
+        }
+        
+        #editSaveProfileBtn.editing .edit-icon {
+            display: none;
+        }
+        
+        #editSaveProfileBtn.editing .save-icon {
+            display: inline;
+        }
+        
+        /* Quick Links Section Styles */
+        .quick-links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .quick-link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(90deg, #222 20%, #e63946 80%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quick-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .quick-link-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+        
+        .quick-link-text {
+            flex: 1;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .quick-link-arrow {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .quick-link-btn:hover .quick-link-arrow {
+            transform: translateX(5px);
+        }
+        
+        @media (max-width: 768px) {
+            .quick-links-container {
+                gap: 0.8rem;
+            }
+            
+            .quick-link-btn {
+                padding: 0.8rem 1rem;
+            }
+            
+            .quick-link-icon {
+                font-size: 1.2rem;
+                margin-right: 0.8rem;
+            }
+            
+            .quick-link-text {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="social-links">
+                <span>Welcome to</span>
+            </div>
+            <div class="user-links">
+                <div class="notification-container">
+                    <button class="notification-btn" id="notificationBtn">
+                        <span class="notification-label">Notifications</span>
+                        <i class="fa fa-bell notification-icon"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                            <button class="clear-all-btn" id="clearAllBtn">Clear All</button>
+                    </div>
+                        <div class="notification-list" id="notificationList">
+                            <!-- Notifications will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                <a href="#" id="topLoginBtn">Login</a>
+                <div id="userDropdown" class="user-dropdown" style="display:none;">
+                    <a href="profile.html" class="dropdown-item">My Account</a>
+                    <a href="order-history.html" class="dropdown-item">Order History</a>
+                    <!-- <a href="#" class="dropdown-item">My Wish List</a> -->
+                    <a href="addresses.html" class="dropdown-item">My Addresses</a>
+                    <a href="#" id="logoutBtn" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo-container">
+                <a href="index.html" class="logo-link">
+                    <div class="logo-wrapper" data-tooltip="Take me home">
+                    <img src="images/sanrico_logo_1.png" alt="Sanrico Mercantile Logo" class="logo-img">
+                    </div>
+                    <span class="logo">
+                        <span>Sanrico</span> <span>Mercantile</span>
+                    </span>
+                </a>
+            </div>
+            <form class="header-search">
+                <input type="text" placeholder="Search for products..." />
+                <button type="submit">
+                    <svg width="20" height="20" fill="none" stroke="#e53935" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+            </form>
+            <div class="header-icons">
+                <a href="#" class="cart-btn" id="cartBtn">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+                <div class="cart-dropdown" id="cartDropdown" style="display: none;">
+                  <div class="cart-dropdown-content" id="cartDropdownContent">
+                    <!-- Content will be filled by JS -->
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="aboutus.html">About Us</a>
+                <a href="faq.html">FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Section -->
+    <section class="profile-section">
+        <div class="container">
+            <h2 class="section-title">My Profile</h2>
+            <div class="profile-wrapper">
+                <div class="profile-form-container">
+                <div class="profile-card">
+                    <h3>Personal Information</h3>
+                        <form class="profile-form">
+                            <div class="form-row">
+                    <div class="form-group">
+                                    <label for="profile-username">Username</label>
+                                    <div class="username-display">
+                                        <input type="text" id="profile-username" class="form-control" placeholder="Enter username" readonly>
+                                        <button type="button" class="btn-link" id="changeUsernameBtn">Change</button>
+                                        <button type="button" class="btn-link cancel-btn hidden" id="cancelUsernameBtn">Cancel</button>
+                            </div>
+                                    <small class="form-text" id="username-help">Username can only be changed once.</small>
+                        </div>
+                            </div>
+                            
+
+                            
+                            <div class="form-row">
+                    <div class="form-group">
+                        <label for="profile-email">Email</label>
+                                    <div class="email-display">
+                                        <span id="email-masked" class="masked-email">ro**********@gmail.com</span>
+                                        <button type="button" class="btn-link" id="changeEmailBtn">Change</button>
+                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                    <div class="form-group">
+                                    <label for="phone-number">Phone Number</label>
+                                    <input type="tel" id="phone-number" class="form-control" placeholder="Enter your phone number (09XXXXXXXXX)" disabled data-tooltip="Click Edit Profile first" style="display: none;">
+                                    <div class="phone-display">
+                                        <span id="phone-display" class="phone-number-display">Not added</span>
+                                        <button type="button" class="btn-link" id="addPhoneBtn">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Gender</label>
+                                    <div class="radio-group">
+                                        <div class="radio-option">
+                                            <input type="radio" id="gender-male" name="gender" value="male">
+                                            <label for="gender-male">Male</label>
+                                        </div>
+                                        <div class="radio-option">
+                                            <input type="radio" id="gender-female" name="gender" value="female">
+                                            <label for="gender-female">Female</label>
+                                        </div>
+                                        <div class="radio-option">
+                                            <input type="radio" id="gender-other" name="gender" value="other">
+                                            <label for="gender-other">Other</label>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-link" id="applyGenderBtn" style="margin-top: 0.5rem; display: none;">Apply Gender</button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Date of birth</label>
+                                    <div class="date-group">
+                                        <select id="birth-date" class="form-control date-select" disabled data-tooltip="Click Edit Profile first">
+                                            <option value="">Date</option>
+                                            <!-- Will be populated by JavaScript -->
+                                        </select>
+                                        <select id="birth-month" class="form-control date-select" disabled data-tooltip="Click Edit Profile first">
+                                            <option value="">Month</option>
+                                            <option value="1">January</option>
+                                            <option value="2">February</option>
+                                            <option value="3">March</option>
+                                            <option value="4">April</option>
+                                            <option value="5">May</option>
+                                            <option value="6">June</option>
+                                            <option value="7">July</option>
+                                            <option value="8">August</option>
+                                            <option value="9">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                        <select id="birth-year" class="form-control date-select" disabled data-tooltip="Click Edit Profile first">
+                                            <option value="">Year</option>
+                                            <!-- Will be populated by JavaScript -->
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                            
+                    <div class="profile-buttons">
+                                <button type="button" class="btn btn-primary" id="editSaveProfileBtn">
+                            <span class="edit-icon">✏️</span> Edit Profile
+                        </button>
+                                <button type="button" class="btn btn-secondary hidden" id="cancelEditBtn">
+                            Cancel
+                        </button>
+                                <button type="button" class="btn btn-outline" id="logoutBtn">Logout</button>
+                    </div>
+                        </form>
+                </div>
+                </div>
+                
+                <div class="profile-image-container">
+                    <div class="profile-image-section">
+                        <div class="profile-image-wrapper">
+                            <img id="profile-image" src="images/default-avatar.png" alt="Profile Picture" class="profile-image">
+                            <div class="image-overlay">
+                                <button type="button" class="btn-image-upload" id="uploadImageBtn">
+                                    <i class="fa fa-camera"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="image-info">
+                            <button type="button" class="btn-link-primary" id="selectImageBtn">Select Image</button>
+                            <div class="file-info">
+                                <small>File size: maximum 1 MB</small>
+                                <small>File extension: .JPEG, .PNG</small>
+                            </div>
+                        </div>
+                        <input type="file" id="imageUpload" accept=".jpg,.jpeg,.png" style="display: none;">
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-orders">0</span>
+                            <span class="stat-label">Total Orders</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="pending-orders">0</span>
+                            <span class="stat-label">Pending Orders</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="member-since">2025</span>
+                            <span class="stat-label">Member Since</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Links Section -->
+            <div class="profile-card quick-links-card">
+                <h3>Quick Links</h3>
+                <div class="quick-links-container">
+                    <a href="order-history.html" class="quick-link-btn">
+                        <span class="quick-link-icon">📋</span>
+                        <span class="quick-link-text">View Order History</span>
+                        <span class="quick-link-arrow">→</span>
+                    </a>
+                    <a href="shop.html" class="quick-link-btn">
+                        <span class="quick-link-icon">🛒</span>
+                        <span class="quick-link-text">Continue Shopping</span>
+                        <span class="quick-link-arrow">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Details Modal -->
+    <div class="modal order-details-modal" id="orderDetailsModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeOrderDetailsModal">×</button>
+            <div id="order-details-content">
+                <!-- Order details will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Save Modal -->
+    <div class="modal confirm-modal" id="confirmSaveModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeConfirmModal">×</button>
+            <h5>Confirm Save</h5>
+            <p id="confirmMessage"></p>
+            <div class="confirm-buttons">
+                <button class="btn" id="confirmOkBtn">OK</button>
+                <button class="btn btn-secondary" id="confirmCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="shop.html?category=power-tools">Power Tools</a></li>
+                        <li><a href="shop.html?category=hand-tools">Hand Tools</a></li>
+                        <li><a href="shop.html?category=plumbing">Plumbing</a></li>
+                        <li><a href="shop.html?category=electrical">Electrical</a></li>
+                        <li><a href="shop.html?category=building-materials">Building Materials</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Information</h4>
+                    <ul>
+                        <li><a href="aboutus.html">About Us</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="profile.html">User Info</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="order-history.html">Order History</a></li>
+                        <li><a href="addresses.html">My Addresses</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul>
+                        <li>Regalado Avenue</li>
+                        <li>Fairview, Quezon City</li>
+                        <li>Phone: (555) 123-4567</li>
+                        <li>Email: <a href="mailto:support@sanricomercantile@gmail.com">support@sanricomercantile@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 Sanrico Mercantile Inc. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Check if logged in as staff and redirect if needed
+        if (Auth.redirectIfStaff()) {
+            // Stop further execution if redirecting
+            throw new Error('Redirecting to staff dashboard');
+        }
+        
+        // Redirect to home if not logged in
+        if (!Auth.isLoggedIn()) {
+            window.location.href = 'index.html';
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('DOM fully loaded for profile.html');
+            
+            // Make sure toast.js is loaded
+            if (typeof showToast !== 'function') {
+                console.error('Toast function not available. Check if toast.js is loaded correctly.');
+                // Define a fallback
+                window.showToast = function(message, type) {
+                    console.log('Toast (fallback):', message, type);
+                    alert(message);
+                };
+            } else {
+                console.log('Toast function available and ready to use');
+            }
+            
+            // Run one-time migration of localStorage orders to MongoDB
+            await Auth.initializeWithMigration();
+            
+            const currentUser = Auth.getCurrentUser();
+            if (!currentUser) {
+                console.error('No current user, redirecting to index.html');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Update login/signup buttons based on auth state
+            const topLoginBtn = document.getElementById('topLoginBtn');
+            const topSignUpBtn = document.getElementById('topSignUpBtn');
+            if (topLoginBtn) {
+                topLoginBtn.textContent = currentUser.fullName || 'My Account';
+                topLoginBtn.href = '#';
+                topLoginBtn.removeEventListener('click', showLoginModal);
+            }
+            if (topSignUpBtn) {
+                topSignUpBtn.textContent = 'Logout';
+                topSignUpBtn.removeEventListener('click', showLoginModal);
+                topSignUpBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Get display name before logout (nickname or full name)
+                    const displayName = currentUser.nickname || currentUser.fullName || 'User';
+                    
+                    const result = Auth.logout();
+                    console.log('Logout result:', result);
+                    
+                    // Show personalized success toast before redirecting
+                    showToast(`${displayName} has logged out`, 'success');
+                    
+                    // Short delay before redirect to ensure toast is visible
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                });
+            }
+
+            // Update cart count
+            Auth.updateCartCount();
+
+            // Load and display order statistics
+            await loadOrderStatistics();
+
+            // Cart button redirect
+            document.getElementById('cartBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = 'cart.html';
+            });
+
+            // Get form fields
+            
+            const phoneInput = document.getElementById('phone-number');
+            
+            // Get date selector fields
+            const dateSelect = document.getElementById('birth-date');
+            const monthSelect = document.getElementById('birth-month');
+            const yearSelect = document.getElementById('birth-year');
+            
+            // Set fields to disabled initially
+                            const formFields = [phoneInput, dateSelect, monthSelect, yearSelect];
+            formFields.forEach(field => {
+                if (field) field.disabled = true;
+            });
+
+            // Display user info
+            const emailInput = document.getElementById('profile-email');
+
+            if (emailInput) {
+                emailInput.value = currentUser.email || '';
+                emailInput.disabled = true; // Email is always disabled
+                
+                const savedAddress = Auth.getUserAddress(currentUser.id) || '';
+                const phoneNumber = Auth.getUserPhone(currentUser.id) || '';
+                
+                
+                
+                phoneInput.value = phoneNumber;
+                
+                // Load existing date of birth if available
+                if (currentUser.dateOfBirth) {
+                    // Handle both old Date format and new structured format
+                    if (typeof currentUser.dateOfBirth === 'object' && currentUser.dateOfBirth.day) {
+                        // New structured format
+                        dateSelect.value = currentUser.dateOfBirth.day;
+                        monthSelect.value = currentUser.dateOfBirth.month;
+                        yearSelect.value = currentUser.dateOfBirth.year;
+                    } else {
+                        // Old Date string format (for backwards compatibility)
+                        const dateOfBirth = new Date(currentUser.dateOfBirth);
+                        if (!isNaN(dateOfBirth.getTime())) {
+                            dateSelect.value = dateOfBirth.getDate();
+                            monthSelect.value = dateOfBirth.getMonth() + 1; // Month is 0-indexed
+                            yearSelect.value = dateOfBirth.getFullYear();
+                        }
+                    }
+                }
+            } else {
+                console.error('Profile input fields missing');
+            }
+
+            // Note: Order history has been moved to its own dedicated page
+
+            // Edit/Save Profile button
+            const editSaveProfileBtn = document.getElementById('editSaveProfileBtn');
+            const cancelEditBtn = document.getElementById('cancelEditBtn');
+            
+            if (editSaveProfileBtn) {
+                // Add the save icon which is initially hidden
+                if (!editSaveProfileBtn.querySelector('.save-icon')) {
+                    const saveIcon = document.createElement('span');
+                    saveIcon.className = 'save-icon';
+                    saveIcon.textContent = '💾';
+                    editSaveProfileBtn.insertBefore(saveIcon, editSaveProfileBtn.firstChild);
+                }
+                
+                editSaveProfileBtn.addEventListener('click', () => {
+                    // Toggle between edit and save modes
+                    if (editSaveProfileBtn.classList.contains('editing')) {
+                        // Currently in edit mode, try to save
+                        saveProfile();
+                    } else {
+                        // Currently in view mode, switch to edit mode
+                        enableEditMode();
+                    }
+                });
+            } else {
+                console.warn('editSaveProfileBtn not found');
+            }
+            
+            // Cancel Edit button
+            if (cancelEditBtn) {
+                cancelEditBtn.addEventListener('click', cancelEdit);
+            } else {
+                console.warn('cancelEditBtn not found');
+            }
+
+            // Logout button functionality
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    console.log('Logout button clicked');
+                    try {
+                        // Get display name before logout
+                        const displayName = currentUser.fullName || 'User';
+                        // Show full-screen overlay like staff
+                        if (window.LoadingUtils) {
+                            window.LoadingUtils.show('Logging out...');
+                        }
+                        
+                        const result = Auth.logout();
+                        console.log('Logout result:', result);
+                        
+                        // Show personalized success toast before redirecting
+                        showToast(`${displayName} has logged out`, 'success');
+                        
+                        // Short delay before redirect to ensure toast is visible
+                        setTimeout(() => {
+                            if (result && result.success) {
+                                window.location.href = 'index.html';
+                            } else {
+                                if (window.LoadingUtils) window.LoadingUtils.hide();
+                            }
+                        }, 600);
+                    } catch (error) {
+                        console.error('Error during logout:', error);
+                        showToast('Logout failed: ' + error.message, 'error');
+                    }
+                });
+            } else {
+                console.warn('logoutBtn not found');
+            }
+
+
+
+            // Store original field values for cancel operation
+            let originalFieldValues = {};
+            
+            // Date change event handlers
+            let dateChangeHandlers = {
+                dateHandler: null,
+                monthHandler: null,
+                yearHandler: null
+            };
+            
+            // Function to load and display order statistics
+            async function loadOrderStatistics() {
+                try {
+                    console.log('Loading order statistics for user:', currentUser.id);
+                    const orders = await Auth.getUserOrders(currentUser.id);
+                    console.log('Orders loaded:', orders);
+                    
+                    if (orders && Array.isArray(orders)) {
+                        // Calculate total orders
+                        const totalOrders = orders.length;
+                        
+                        // Calculate pending orders (matching order-history page logic)
+                        const pendingOrders = orders.filter(order => {
+                            const status = order.status?.toLowerCase();
+                            return status === 'pending' || !status;
+                        }).length;
+                        
+                        // Update the display
+                        const totalOrdersElement = document.getElementById('total-orders');
+                        const pendingOrdersElement = document.getElementById('pending-orders');
+                        
+                        if (totalOrdersElement) {
+                            totalOrdersElement.textContent = totalOrders;
+                        }
+                        
+                        if (pendingOrdersElement) {
+                            pendingOrdersElement.textContent = pendingOrders;
+                        }
+                        
+                        console.log(`Order statistics updated: Total=${totalOrders}, Pending=${pendingOrders}`);
+                    } else {
+                        console.warn('No orders found or invalid orders data');
+                        // Set to 0 if no orders
+                        const totalOrdersElement = document.getElementById('total-orders');
+                        const pendingOrdersElement = document.getElementById('pending-orders');
+                        
+                        if (totalOrdersElement) totalOrdersElement.textContent = '0';
+                        if (pendingOrdersElement) pendingOrdersElement.textContent = '0';
+                    }
+                    
+                    // Update member since year (when user was created)
+                    const memberSinceElement = document.getElementById('member-since');
+                    if (memberSinceElement && currentUser.createdAt) {
+                        const createdYear = new Date(currentUser.createdAt).getFullYear();
+                        memberSinceElement.textContent = createdYear;
+                    } else if (memberSinceElement) {
+                        // Fallback to current year if no creation date
+                        memberSinceElement.textContent = new Date().getFullYear();
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading order statistics:', error);
+                    // Set default values on error
+                    const totalOrdersElement = document.getElementById('total-orders');
+                    const pendingOrdersElement = document.getElementById('pending-orders');
+                    
+                    if (totalOrdersElement) totalOrdersElement.textContent = '0';
+                    if (pendingOrdersElement) pendingOrdersElement.textContent = '0';
+                }
+            }
+            
+            // Gender functionality
+            let originalGender = null;
+            
+            // Load saved gender preference
+            const savedGender = Auth.getUserGender(currentUser.id);
+            if (savedGender) {
+                const genderRadio = document.querySelector(`input[name="gender"][value="${savedGender}"]`);
+                if (genderRadio) {
+                    genderRadio.checked = true;
+                    originalGender = savedGender;
+                }
+            }
+            
+            // Add event listeners to gender radio buttons
+            const genderRadios = document.querySelectorAll('input[name="gender"]');
+            const applyGenderBtn = document.getElementById('applyGenderBtn');
+            
+            genderRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const currentGender = this.value;
+                    if (currentGender !== originalGender) {
+                        // Show apply button when gender changes
+                        applyGenderBtn.style.display = 'inline-block';
+                    } else {
+                        // Hide apply button if reverted to original
+                        applyGenderBtn.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Apply gender button functionality
+            if (applyGenderBtn) {
+                applyGenderBtn.addEventListener('click', function() {
+                    const selectedGender = document.querySelector('input[name="gender"]:checked');
+                    if (selectedGender) {
+                        const genderValue = selectedGender.value;
+                        
+                        // Save gender to user profile
+                        Auth.updateUserGender(currentUser.id, genderValue);
+                        
+                        // Update original gender value
+                        originalGender = genderValue;
+                        
+                        // Hide apply button
+                        applyGenderBtn.style.display = 'none';
+                        
+                        // Show success message
+                        showToast('Gender preference updated successfully', 'success');
+                    }
+                });
+            }
+            
+            // Function to add date event listeners
+            function addDateEventListeners() {
+                if (dateSelect && monthSelect && yearSelect) {
+                    // Remove any existing listeners first
+                    removeDateEventListeners();
+                    
+                    // Create new event handlers
+                    dateChangeHandlers.dateHandler = function() { validateDateOfBirth(); };
+                    dateChangeHandlers.monthHandler = function() { validateDateOfBirth(); };
+                    dateChangeHandlers.yearHandler = function() { validateDateOfBirth(); };
+                    
+                    // Add the event listeners
+                    dateSelect.addEventListener('change', dateChangeHandlers.dateHandler);
+                    monthSelect.addEventListener('change', dateChangeHandlers.monthHandler);
+                    yearSelect.addEventListener('change', dateChangeHandlers.yearHandler);
+                }
+            }
+            
+            // Function to remove date event listeners
+            function removeDateEventListeners() {
+                if (dateSelect && monthSelect && yearSelect) {
+                    if (dateChangeHandlers.dateHandler) {
+                        dateSelect.removeEventListener('change', dateChangeHandlers.dateHandler);
+                    }
+                    if (dateChangeHandlers.monthHandler) {
+                        monthSelect.removeEventListener('change', dateChangeHandlers.monthHandler);
+                    }
+                    if (dateChangeHandlers.yearHandler) {
+                        yearSelect.removeEventListener('change', dateChangeHandlers.yearHandler);
+                    }
+                    
+                    // Clear the handlers
+                    dateChangeHandlers.dateHandler = null;
+                    dateChangeHandlers.monthHandler = null;
+                    dateChangeHandlers.yearHandler = null;
+                }
+            }
+            
+            // Setup custom confirmation dialog
+            const confirmModal = document.getElementById('confirmSaveModal');
+            const confirmMessage = document.getElementById('confirmMessage');
+            const confirmOkBtn = document.getElementById('confirmOkBtn');
+            const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+            const closeConfirmModal = document.getElementById('closeConfirmModal');
+            
+            // Custom confirm dialog variables
+            let confirmResolve = null;
+            
+            // Override the default confirm function
+            window.showConfirm = function(message) {
+                // Don't use the browser's built-in confirm
+                confirmMessage.textContent = message;
+                confirmModal.classList.add('show');
+                
+                // Return a promise that will be resolved when user makes a choice
+                return new Promise((resolve) => {
+                    confirmResolve = resolve;
+                });
+            }
+            
+            // Confirm dialog event listeners
+            if (confirmOkBtn) {
+                confirmOkBtn.addEventListener('click', () => {
+                    confirmModal.classList.remove('show');
+                    if (confirmResolve) {
+                        confirmResolve(true);
+                        confirmResolve = null;
+                    }
+                });
+            }
+            
+            if (confirmCancelBtn) {
+                confirmCancelBtn.addEventListener('click', () => {
+                    confirmModal.classList.remove('show');
+                    if (confirmResolve) {
+                        confirmResolve(false);
+                        confirmResolve = null;
+                    }
+                });
+            }
+            
+            if (closeConfirmModal) {
+                closeConfirmModal.addEventListener('click', () => {
+                    confirmModal.classList.remove('show');
+                    if (confirmResolve) {
+                        confirmResolve(false);
+                        confirmResolve = null;
+                    }
+                });
+            }
+            
+            // Enable edit mode
+            function enableEditMode() {
+                // Sync phone number from display to input field
+                const phoneDisplay = document.getElementById('phone-display');
+                const phoneDisplayContainer = document.querySelector('.phone-display');
+                if (phoneDisplay && phoneInput) {
+                    const currentPhone = phoneDisplay.textContent === 'Not added' ? '' : phoneDisplay.textContent;
+                    phoneInput.value = currentPhone;
+                    
+                    // Show input field and hide display
+                    phoneInput.style.display = 'block';
+                    phoneDisplayContainer.style.display = 'none';
+                }
+                
+                // Store original values before enabling edit
+                originalFieldValues = {
+                    phone: phoneInput.value,
+                    birthDate: dateSelect.value,
+                    birthMonth: monthSelect.value,
+                    birthYear: yearSelect.value
+                };
+                
+                // Enable form fields and remove tooltips
+                formFields.forEach(field => {
+                    if (field) {
+                        field.disabled = false;
+                        field.removeAttribute('data-tooltip');
+                    }
+                });
+                
+                // Add date change event listeners when edit mode is enabled
+                addDateEventListeners();
+                
+                // Update button appearance
+                editSaveProfileBtn.classList.add('editing');
+                
+                // Clear the button content and rebuild it with proper icons
+                editSaveProfileBtn.innerHTML = '<span class="save-icon">💾</span> Save Profile';
+                
+                // Show cancel button
+                document.getElementById('cancelEditBtn').classList.remove('hidden');
+            }
+            
+            // Save profile function
+            function saveProfile() {
+                console.log('Save profile clicked');
+                
+                // Get all form components
+                const phoneNumber = document.getElementById('phone-number').value.trim();
+                const birthDate = document.getElementById('birth-date').value;
+                const birthMonth = document.getElementById('birth-month').value;
+                const birthYear = document.getElementById('birth-year').value;
+                
+                // Validate
+                // Allow empty fields, but require at least one field to have content
+                const hasAnyData = phoneNumber || birthDate || birthMonth || birthYear;
+                
+                if (!hasAnyData) {
+                    showToast('Please fill in at least one field', 'warning');
+                    return;
+                }
+                
+                // Phone number is optional, but if provided, it must be valid
+                if (phoneNumber && !/^(09|\+639|639)\d{9}$/.test(phoneNumber)) {
+                    showToast('Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX).');
+                    return;
+                }
+                
+                // Validate date of birth - if any date field is filled, all must be filled
+                const dateFieldsFilled = [birthDate, birthMonth, birthYear].filter(field => field).length;
+                if (dateFieldsFilled > 0 && dateFieldsFilled < 3) {
+                    showToast('Please complete all date of birth fields (Date, Month, Year)', 'warning');
+                    return;
+                }
+                
+                // Count empty fields for confirmation
+                const fields = [
+                    { name: 'Phone Number', value: phoneNumber },
+                    { name: 'Date of Birth', value: dateFieldsFilled === 3 ? 'filled' : '' }
+                ];
+                
+                const emptyFields = fields.filter(field => !field.value);
+                const emptyFieldCount = emptyFields.length;
+                
+                // If there are empty fields, show confirmation dialog
+                if (emptyFieldCount > 0) {
+                    const message = `You've left ${emptyFieldCount} field${emptyFieldCount > 1 ? 's' : ''} empty. Do you wish to save?`;
+                    
+                    // Using async/await with the custom confirm
+                    showConfirm(message).then(confirmed => {
+                        if (confirmed) {
+                            // User clicked OK, continue with save
+                            completeProfileSave(phoneNumber, birthDate, birthMonth, birthYear);
+                        }
+                        // If not confirmed, do nothing
+                    });
+                    
+                    return; // Return early as we're handling the save in the promise
+                }
+                
+                // If no empty fields, proceed with save directly
+                completeProfileSave(phoneNumber, birthDate, birthMonth, birthYear);
+                
+            }
+            
+            // Function to complete the profile save after confirmation
+            function completeProfileSave(phoneNumber, birthDate, birthMonth, birthYear) {
+                // Create update data object
+                const updateData = {};
+                
+                // Only include phone number if provided
+                if (phoneNumber) {
+                    updateData.phoneNumber = phoneNumber;
+                }
+                
+                // Only include date of birth if all fields are provided
+                if (birthDate && birthMonth && birthYear) {
+                    updateData.dateOfBirth = {
+                        day: birthDate,
+                        month: birthMonth,
+                        year: birthYear
+                    };
+                }
+                
+                Auth.updateUserProfile(currentUser.id, updateData);
+                
+                // Show success toast notification
+                console.log('Showing success toast for profile update');
+                const toastShown = showToast('Profile updated successfully', 'success', 4000); // Extended duration for better visibility
+                
+                // Failsafe in case toast isn't showing
+                if (!toastShown) {
+                    console.warn('Toast might not be showing, using alert as fallback');
+                    alert('Profile updated successfully');
+                }
+                
+                // Sync phone data back to display and hide input field
+                const phoneDisplay = document.getElementById('phone-display');
+                const phoneDisplayContainer = document.querySelector('.phone-display');
+                const addPhoneBtn = document.getElementById('addPhoneBtn');
+                if (phoneDisplay && phoneInput && phoneDisplayContainer) {
+                    const phoneValue = phoneInput.value.trim();
+                    if (phoneValue) {
+                        phoneDisplay.textContent = phoneValue;
+                        phoneDisplay.classList.remove('phone-number-display');
+                        if (addPhoneBtn) addPhoneBtn.textContent = 'Edit';
+                    } else {
+                        phoneDisplay.textContent = 'Not added';
+                        phoneDisplay.classList.add('phone-number-display');
+                        if (addPhoneBtn) addPhoneBtn.textContent = 'Add';
+                    }
+                    
+                    // Hide input field and show display
+                    phoneInput.style.display = 'none';
+                    phoneDisplayContainer.style.display = 'flex';
+                }
+                
+                // Disable form fields again and add tooltips
+                formFields.forEach(field => {
+                    if (field) {
+                        field.disabled = true;
+                        field.setAttribute('data-tooltip', 'Click Edit Profile first');
+                    }
+                });
+                
+                // Remove date change event listeners when exiting edit mode
+                removeDateEventListeners();
+                
+                // Reset button to edit mode
+                editSaveProfileBtn.classList.remove('editing');
+                
+                // Clear the button content and rebuild it with proper icons
+                editSaveProfileBtn.innerHTML = '<span class="edit-icon">✏️</span> Edit Profile';
+                
+                // Hide cancel button
+                document.getElementById('cancelEditBtn').classList.add('hidden');
+            }
+            
+            // Cancel edit function
+            function cancelEdit() {
+                console.log('Cancel edit clicked');
+                
+                // Restore original values
+                if (originalFieldValues) {
+                    phoneInput.value = originalFieldValues.phone || '';
+                    dateSelect.value = originalFieldValues.birthDate || '';
+                    monthSelect.value = originalFieldValues.birthMonth || '';
+                    yearSelect.value = originalFieldValues.birthYear || '';
+                }
+                
+                // Sync phone data back to display and hide input field
+                const phoneDisplay = document.getElementById('phone-display');
+                const phoneDisplayContainer = document.querySelector('.phone-display');
+                const addPhoneBtn = document.getElementById('addPhoneBtn');
+                if (phoneDisplay && phoneInput && phoneDisplayContainer) {
+                    const phoneValue = originalFieldValues ? originalFieldValues.phone || '' : '';
+                    if (phoneValue) {
+                        phoneDisplay.textContent = phoneValue;
+                        phoneDisplay.classList.remove('phone-number-display');
+                        if (addPhoneBtn) addPhoneBtn.textContent = 'Edit';
+                    } else {
+                        phoneDisplay.textContent = 'Not added';
+                        phoneDisplay.classList.add('phone-number-display');
+                        if (addPhoneBtn) addPhoneBtn.textContent = 'Add';
+                    }
+                    
+                    // Hide input field and show display
+                    phoneInput.style.display = 'none';
+                    phoneDisplayContainer.style.display = 'flex';
+                }
+                
+                // Disable form fields again and add tooltips
+                formFields.forEach(field => {
+                    if (field) {
+                        field.disabled = true;
+                        field.setAttribute('data-tooltip', 'Click Edit Profile first');
+                    }
+                });
+                
+                // Remove date change event listeners when exiting edit mode
+                removeDateEventListeners();
+                
+                // Reset button to edit mode
+                editSaveProfileBtn.classList.remove('editing');
+                
+                // Clear the button content and rebuild it with proper icons
+                editSaveProfileBtn.innerHTML = '<span class="edit-icon">✏️</span> Edit Profile';
+                
+                // Hide cancel button
+                document.getElementById('cancelEditBtn').classList.add('hidden');
+                
+                // Show notification
+                console.log('Showing cancel toast notification');
+                showToast('Edit cancelled', 'info', 3000);
+            }
+
+            // Function to show order details with progress tracking
+            window.showOrderDetails = function(orderIndex) {
+                const orders = Auth.getUserOrders(currentUser.id);
+                const order = orders[orderIndex];
+                
+                if (!order) {
+                    showToast('Order not found', 'error');
+                    return;
+                }
+                
+                const modal = document.getElementById('orderDetailsModal');
+                const content = document.getElementById('order-details-content');
+                
+                // Calculate totals
+                const subtotal = order.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+                const total = subtotal + 150;
+                
+                // Determine order progress
+                const orderDate = new Date(order.date);
+                const daysSinceOrder = Math.floor((new Date() - orderDate) / (1000 * 60 * 60 * 24));
+                
+                let progressStatus = 'pending';
+                let progressText = 'Order Pending';
+                let progressDescription = 'Your order is being processed.';
+                
+                if (daysSinceOrder >= 1 && daysSinceOrder < 3) {
+                    progressStatus = 'processing';
+                    progressText = 'Being Prepared';
+                    progressDescription = 'Your order is being prepared for shipment.';
+                } else if (daysSinceOrder >= 3 && daysSinceOrder < 7) {
+                    progressStatus = 'shipped';
+                    progressText = 'Out for Delivery';
+                    progressDescription = 'Your order is on its way to you.';
+                } else if (daysSinceOrder >= 7) {
+                    progressStatus = 'delivered';
+                    progressText = 'Delivered';
+                    progressDescription = 'Your order has been delivered.';
+                }
+                
+                // Check if order can be cancelled (only if pending or processing)
+                const canCancel = progressStatus === 'pending' || progressStatus === 'processing';
+                
+                content.innerHTML = `
+                    <h3>Order #${orderIndex + 1} Details</h3>
+                    <div class="order-details-section">
+                        <h4>Order Information</h4>
+                        <p><strong>Order Date:</strong> ${orderDate.toLocaleDateString()}</p>
+                        <p><strong>Order Status:</strong> ${order.status}</p>
+                        <p><strong>Payment Status:</strong> ${order.payment?.confirmed ? 'Confirmed ✓' : 'Not Confirmed *'}</p>
+                    </div>
+                    
+                    <div class="order-details-section">
+                        <h4>Order Progress</h4>
+                        <div class="progress-tracker">
+                            <div class="progress-step ${progressStatus === 'pending' || progressStatus === 'processing' || progressStatus === 'shipped' || progressStatus === 'delivered' ? 'active' : ''}">
+                                <div class="progress-icon">📦</div>
+                                <div class="progress-text">Order Placed</div>
+                            </div>
+                            <div class="progress-step ${progressStatus === 'processing' || progressStatus === 'shipped' || progressStatus === 'delivered' ? 'active' : ''}">
+                                <div class="progress-icon">⚙️</div>
+                                <div class="progress-text">Being Prepared</div>
+                            </div>
+                            <div class="progress-step ${progressStatus === 'shipped' || progressStatus === 'delivered' ? 'active' : ''}">
+                                <div class="progress-icon">🚚</div>
+                                <div class="progress-text">Out for Delivery</div>
+                            </div>
+                            <div class="progress-step ${progressStatus === 'delivered' ? 'active' : ''}">
+                                <div class="progress-icon">✅</div>
+                                <div class="progress-text">Delivered</div>
+                            </div>
+                        </div>
+                        <p class="progress-description"><strong>${progressText}:</strong> ${progressDescription}</p>
+                    </div>
+                    
+                    <div class="order-details-section">
+                        <h4>Items Ordered</h4>
+                        <div class="order-items-list">
+                            ${order.items.map(item => `
+                                <div class="order-item-detail">
+                                    <span class="item-name">${item.name}</span>
+                                    <span class="item-quantity">x${item.quantity}</span>
+                                    <span class="item-price">₱${(item.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="order-total-section">
+                            <p><strong>Subtotal:</strong> ₱${subtotal.toFixed(2)}</p>
+                            <p><strong>Shipping:</strong> ₱150.00</p>
+                            <p class="order-total"><strong>Total:</strong> ₱${total.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    
+                    ${order.shipping ? `
+                        <div class="order-details-section">
+                            <h4>Shipping Information</h4>
+                            <p><strong>Address:</strong> ${order.shipping.address}</p>
+                            <p><strong>Phone:</strong> ${order.shipping.phoneNumber}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${order.payment ? `
+                        <div class="order-details-section">
+                            <h4>Payment Information</h4>
+                            <p><strong>Method:</strong> ${
+                                order.payment.method === 'bank' ? 'Bank Transfer' :
+                                order.payment.method === 'gcash' ? 'GCash' :
+                                order.payment.method === 'cheque' ? 'Cheque' : 'Unknown'
+                            }</p>
+                            ${order.payment.confirmed ? '<p class="payment-confirmed">✓ Payment Confirmed</p>' : '<p class="payment-pending">* Payment Not Confirmed</p>'}
+                        </div>
+                    ` : ''}
+                    
+                    ${order.notes ? `
+                        <div class="order-details-section">
+                            <h4>Additional Notes</h4>
+                            <p>${order.notes}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="order-actions-modal">
+                        ${canCancel ? `<button class="btn btn-danger" onclick="cancelOrder(${orderIndex})">Cancel Order</button>` : ''}
+                        ${!order.payment?.confirmed ? `<button class="btn" onclick="editPaymentDetails(${orderIndex}); document.getElementById('orderDetailsModal').classList.remove('show');">Edit Payment</button>` : ''}
+                        <button class="btn btn-secondary" onclick="document.getElementById('orderDetailsModal').classList.remove('show');">Close</button>
+                    </div>
+                `;
+                
+                modal.classList.add('show');
+            };
+        });
+    </script>
+    
+    <!-- Toast Container with inline style for better visibility -->
+    <div class="toast" id="toast" style="z-index: 9999; display: none;"></div>
+    
+    <script>
+        // Make sure we have a working toast function
+        window.addEventListener('load', function() {
+            console.log('Window loaded, checking toast functionality');
+            if (typeof showToast === 'function') {
+                console.log('Toast function is available on window load');
+                // Test the toast functionality
+                setTimeout(function() {
+                    showToast('Page loaded successfully', 'success', 3000);
+                }, 500);
+            } else {
+                console.error('Toast function not available after page load');
+                alert('There might be an issue with the toast notifications. Please check the console.');
+            }
+        });
+    </script>
+</body>
+</html>
