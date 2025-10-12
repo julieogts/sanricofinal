@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/history.css">
     <link rel="stylesheet" href="css/profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -239,7 +240,7 @@
         }
     </style>
 </head>
-<body>
+<body class="no-loader">
     <!-- Top Bar -->
     <div class="top-bar">
         <div class="container">
@@ -325,6 +326,10 @@
     <!-- Profile Section -->
     <section class="profile-section">
         <div class="container">
+            <a href="#" class="back-to-profile" onclick="return smartBack();">
+                <i class="fa fa-arrow-left"></i>
+                Back
+            </a>
             <h2 class="section-title">My Profile</h2>
             <div class="profile-wrapper">
                 <div class="profile-form-container">
@@ -559,6 +564,45 @@
     </footer>
 
     <script>
+        // Lightweight smart back: go to the most recent different page; fallback to index
+        function smartBack() {
+            try {
+                const current = window.location.href;
+                // Prefer browser history if it will lead to a different page
+                const ref = document.referrer || '';
+                if (ref && new URL(ref, location.origin).href !== new URL(current, location.origin).href) {
+                    window.history.back();
+                    return false;
+                }
+                // Use recent page stack for a different page
+                const stack = JSON.parse(sessionStorage.getItem('recentPages') || '[]');
+                const target = (stack || []).find(p => {
+                    try { return new URL(p, location.origin).href !== new URL(current, location.origin).href; } catch(_) { return p !== current; }
+                });
+                if (target) {
+                    window.location.href = target;
+                    return false;
+                }
+            } catch (_) {}
+            window.location.href = 'index.html';
+            return false;
+        }
+
+        // Track recent pages (dedup, cap 10)
+        (function trackRecentPages(){
+            try {
+                const key = 'recentPages';
+                const current = window.location.href;
+                let stack = [];
+                try { stack = JSON.parse(sessionStorage.getItem(key) || '[]'); } catch(_) { stack = []; }
+                if (!stack.length || stack[0] !== current) {
+                    stack.unshift(current);
+                    stack = stack.filter((url, idx, arr) => arr.indexOf(url) === idx);
+                    if (stack.length > 10) stack = stack.slice(0, 10);
+                    sessionStorage.setItem(key, JSON.stringify(stack));
+                }
+            } catch(_) {}
+        })();
         // Check if logged in as staff and redirect if needed
         if (Auth.redirectIfStaff()) {
             // Stop further execution if redirecting

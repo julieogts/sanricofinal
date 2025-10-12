@@ -34,10 +34,18 @@ async function loadProductDetails() {
         const product = await response.json();
         
         if (product) {
-            // Convert price from MongoDB format if needed
-            const price = typeof product.price === 'object' ? 
-                parseFloat(product.price.$numberDecimal) : 
-                parseFloat(product.price);
+            // Convert price to number - prefer SellingPrice, but fall back gracefully
+            const toNumber = (val) => {
+                if (val === null || val === undefined) return NaN;
+                if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+                return parseFloat(val);
+            };
+            const candidates = [product.SellingPrice, product.sellingPrice, product.Price, product.price];
+            let price = NaN;
+            for (const c of candidates) {
+                const n = toNumber(c);
+                if (!isNaN(n)) { price = n; break; }
+            }
             
             // Update product information in the page
             document.getElementById('productTitle').textContent = product.name;
@@ -477,9 +485,17 @@ function displayRelatedProducts(products) {
     }
     
     relatedProductsGrid.innerHTML = products.map(product => {
-        const price = typeof product.price === 'object' ? 
-            parseFloat(product.price.$numberDecimal) : 
-            parseFloat(product.price);
+        const toNumber = (val) => {
+            if (val === null || val === undefined) return NaN;
+            if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+            return parseFloat(val);
+        };
+        const candidates = [product.SellingPrice, product.sellingPrice, product.Price, product.price];
+        let price = NaN;
+        for (const c of candidates) {
+            const n = toNumber(c);
+            if (!isNaN(n)) { price = n; break; }
+        }
             
         return `
             <div class="related-product-card" data-stock-quantity="${product.stockQuantity}">

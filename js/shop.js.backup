@@ -17,7 +17,7 @@ function showLoadingProducts() {
 function showLoadingProductCount() {
     const productCountElement = document.getElementById('product-count');
     if (productCountElement) {
-        productCountElement.textContent = 'Loading...';
+        productCountElement.textContent = 'LOADING';
     }
 }
 
@@ -55,11 +55,25 @@ async function loadProducts() {
         const uniqueCategories = [...new Set(products.map(p => p.category))];
         console.log('Unique categories in database:', uniqueCategories);
         
-        // Convert price from string to number
+        // Convert price from string to number - use SellingPrice with fallback to price
         products = products.map(product => {
+            let finalPrice;
+            
+            // Check if SellingPrice exists and is valid
+            if (product.SellingPrice !== null && product.SellingPrice !== undefined) {
+                finalPrice = typeof product.SellingPrice === 'object' ? 
+                    parseFloat(product.SellingPrice.$numberDecimal) : 
+                    parseFloat(product.SellingPrice);
+            } else {
+                // Fallback to original price field
+                finalPrice = typeof product.price === 'object' ? 
+                    parseFloat(product.price.$numberDecimal) : 
+                    parseFloat(product.price);
+            }
+            
             const convertedProduct = {
                 ...product,
-                price: typeof product.price === 'object' ? parseFloat(product.price.$numberDecimal) : parseFloat(product.price)
+                price: finalPrice
             };
             console.log('Converted product:', convertedProduct);
             return convertedProduct;
@@ -141,29 +155,48 @@ function filterAndSortProducts(selectedCategory = null) {
             const matchesSearch = !searchQuery || 
                 (product.name && product.name.toLowerCase().includes(searchQuery));
             
-            // Map HTML category values to database category values
-            let categoryMatches = category === 'all';
-            if (category !== 'all') {
-                switch(category) {
-                    case 'power-tools':
-                        categoryMatches = product.category === 'Power-Tools';
-                        break;
-                    case 'hand-tools':
-                        categoryMatches = product.category === 'Hand-Tools';
-                        break;
-                    case 'building-materials':
-                        categoryMatches = product.category === 'Building-Materials';
-                        break;
-                    case 'plumbing':
-                        categoryMatches = product.category === 'Plumbing';
-                        break;
-                    case 'electrical':
-                        categoryMatches = product.category === 'Electrical';
-                        break;
+            const normalizeCategory = (raw) => {
+                const val = String(raw || '').toLowerCase();
+                const includesAny = (list) => list.some(k => val.includes(k));
+                if (includesAny(['paint', 'painting'])) return 'paints';
+                if (includesAny(['power-tools','powertools','hand-tools','handtools','tool','tools','accessor'])) return 'tools-accessories';
+                if (includesAny(['building-materials','aggregate','cement','sand','gravel','hollow','plywood','wood','lumber','tile','roof'])) return 'building-materials-aggregates';
+                if (includesAny(['electrical','wire','breaker','outlet','switch'])) return 'electrical-supplies';
+                if (includesAny(['plumbing','fixture','pipe','fitting','faucet','valve'])) return 'plumbing-fixtures';
+                if (includesAny(['fastener','screw','nail','bolt','nut','consumable','adhesive','sealant','tape'])) return 'fasteners-consumables';
+                switch (String(raw || '')) {
+                    case 'Power-Tools':
+                    case 'Hand-Tools':
+                        return 'tools-accessories';
+                    case 'Building-Materials':
+                        return 'building-materials-aggregates';
+                    case 'Plumbing':
+                        return 'plumbing-fixtures';
+                    case 'Electrical':
+                        return 'electrical-supplies';
                     default:
-                        categoryMatches = false;
+                        return 'other';
                 }
-            }
+            };
+            const normalizeRequested = (slug) => {
+                switch (slug) {
+                    case 'all': return 'all';
+                    case 'power-tools':
+                    case 'hand-tools':
+                        return 'tools-accessories';
+                    case 'building-materials':
+                        return 'building-materials-aggregates';
+                    case 'plumbing':
+                        return 'plumbing-fixtures';
+                    case 'electrical':
+                        return 'electrical-supplies';
+                    default:
+                        return slug || 'all';
+                }
+            };
+            const requestedBucket = normalizeRequested(category);
+            const productBucket = normalizeCategory(product.category);
+            const categoryMatches = requestedBucket === 'all' ? true : (requestedBucket === productBucket);
             
             const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
             

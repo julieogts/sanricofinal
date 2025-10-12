@@ -1194,6 +1194,10 @@
                             <span>Subtotal</span>
                             <span id="staffModalSubtotal">₱0.00</span>
                         </div>
+                        <div class="total-row">
+                            <span>Delivery Fee</span>
+                            <span id="staffModalDeliveryFee">₱0.00</span>
+                        </div>
                         <div class="total-row final-total">
                             <span>Total</span>
                             <span id="staffModalTotal">₱0.00</span>
@@ -1868,7 +1872,19 @@
                     this.products = products.map(product => ({
                         id: product._id,
                         name: product.name,
-                        price: typeof product.price === 'object' ? parseFloat(product.price.$numberDecimal) : parseFloat(product.price),
+                        price: (() => {
+                            const toNumber = (val) => {
+                                if (val === null || val === undefined) return NaN;
+                                if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+                                return parseFloat(val);
+                            };
+                            const candidates = [product.SellingPrice, product.sellingPrice, product.Price, product.price];
+                            for (const c of candidates) {
+                                const n = toNumber(c);
+                                if (!isNaN(n)) return n;
+                            }
+                            return 0;
+                        })(),
                         category: this.mapDbCategoryToLocal(product.category),
                         image: product.image || 'images/sanrico_logo_1.png',
                         stock: product.stockQuantity || 0,
@@ -2804,6 +2820,11 @@
                                 <span class="payment-method ${order.paymentMethod || 'cod'}">
                                     ${this.formatPaymentMethod(order.paymentMethod || 'cod')}
                                 </span>
+                                ${order.paymentType === 'split' && order.collection !== 'delivered' ? `
+                                    <div style="margin-top: 0.25rem; font-size: 0.75rem; color: #d32f2f; font-weight: 500;">
+                                        💰 Balance: ₱${((parseFloat(order.total) || 0) - (parseFloat(order.paymentAmount) || 0)).toFixed(2)}
+                                    </div>
+                                ` : ''}
                             </td>
                             <td>
                                 <span class="shipping-info">
@@ -3475,10 +3496,12 @@
                 `).join('');
                 
                 // Calculate and populate totals
-                const subtotal = (order.itemsordered || []).reduce((total, item) => total + (parseFloat(item.total_item_price) || 0), 0);
-                const total = parseFloat(order.total) || subtotal;
+                const subtotal = parseFloat(order.subtotal) || (order.itemsordered || []).reduce((total, item) => total + (parseFloat(item.total_item_price) || 0), 0);
+                const deliveryFee = parseFloat(order.deliveryFee) || 0;
+                const total = parseFloat(order.total) || (subtotal + deliveryFee);
                 
                 document.getElementById('staffModalSubtotal').textContent = `₱${subtotal.toFixed(2)}`;
+                document.getElementById('staffModalDeliveryFee').textContent = `₱${deliveryFee.toFixed(2)}`;
                 document.getElementById('staffModalTotal').textContent = `₱${total.toFixed(2)}`;
                 
                 // Populate staff technical information with better formatting
@@ -3596,10 +3619,38 @@
                             <div class="payment-icon">💳</div>
                             <div>
                                 <strong>${this.formatPaymentMethod(order.paymentMethod || 'cod')}</strong>
+                                ${order.paymentType ? `<div style="font-size: 0.85rem; color: #666;">Type: ${order.paymentType === 'full' ? 'Full Payment' : 'Split Payment'}</div>` : ''}
+                                ${order.paymentSplitPercent ? `<div style="font-size: 0.85rem; color: #666;">Split: ${order.paymentSplitPercent}%</div>` : ''}
                                 ${order.paymentReference ? `<div style="font-size: 0.85rem; color: #666;">Ref: ${order.paymentReference}</div>` : ''}
                                 ${order.paymentAmount ? `<div style="font-size: 0.85rem; color: #666;">Amount: ₱${parseFloat(order.paymentAmount).toFixed(2)}</div>` : ''}
+                                ${order.changeUponDelivery ? `<div style="font-size: 0.85rem; color: #28a745;">✓ Change upon delivery</div>` : ''}
                             </div>
                         </div>
+                        ${order.paymentType === 'split' ? `
+                            <div class="info-row" style="background: #fff3e0; padding: 1rem; border-radius: 8px; border-left: 4px solid #ff9800; margin: 1rem 0;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                    <span style="font-weight: 600; color: #e65100;">💰 Split Payment Details</span>
+                                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #fff; color: #6b7280; font-size: 11px; font-weight: 700; border: 1px solid #d1d5db; cursor: help; user-select: none;" title="This order uses split payment. The customer has already paid a portion, and the remaining balance must be collected upon delivery.">?</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.75rem;">
+                                    <div style="padding: 0.75rem; background: #e3f2fd; border-radius: 6px; border-left: 3px solid #2196f3;">
+                                        <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.25rem;">Already Paid</div>
+                                        <div style="font-size: 1rem; font-weight: 600; color: #1976d2;">₱${(parseFloat(order.paymentAmount) || 0).toFixed(2)}</div>
+                                        <div style="font-size: 0.75rem; color: #666;">${order.paymentSplitPercent || 0}% of total</div>
+                                    </div>
+                                    <div style="padding: 0.75rem; background: #ffebee; border-radius: 6px; border-left: 3px solid #f44336;">
+                                        <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.25rem;">Balance to Collect</div>
+                                        <div style="font-size: 1rem; font-weight: 600; color: #d32f2f;">₱${((parseFloat(order.total) || 0) - (parseFloat(order.paymentAmount) || 0)).toFixed(2)}</div>
+                                        <div style="font-size: 0.75rem; color: #666;">${100 - (parseFloat(order.paymentSplitPercent) || 0)}% of total</div>
+                                    </div>
+                                </div>
+                                <div style="padding: 0.75rem; background: #e8f5e8; border-radius: 6px; border-left: 3px solid #4caf50;">
+                                    <div style="font-size: 0.85rem; color: #2e7d32;">
+                                        <strong>📋 Collection Instructions:</strong> Collect the "Balance to Collect" amount upon delivery. ${order.changeUponDelivery ? 'Customer may pay with larger amount and receive change.' : 'Exact amount required.'}
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
                         <div class="info-row">
                             <span class="info-label">Payment Status</span>
                             <span class="info-value">

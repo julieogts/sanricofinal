@@ -182,59 +182,157 @@
         </div>
 
         <div class="product-container">
-        <div class="image-section">
-                <img id="productImage" src="images/sanrico_logo_1.png" alt="Product Image" class="product-image">
-        </div>
-        <div class="product-details">
+            <!-- Left Section: Image and Filters -->
+            <div class="product-left-section">
+                <!-- Enhanced Product Image Section -->
+                <div class="image-section">
+                    <div class="product-image-wrapper">
+                        <div class="image-badge" id="productBadge">
+                            <span>NEW</span>
+                        </div>
+                        <img id="productImage" src="images/sanrico_logo_1.png" alt="Product Image" class="product-image">
+                        <div class="image-overlay">
+                            <button class="zoom-btn" id="zoomBtn" title="Zoom Image">
+                                <i class="fa fa-search-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Image Gallery Thumbnails -->
+                    <div class="image-thumbnails" id="imageThumbnails">
+                        <!-- Thumbnails will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Brand and Subcategory Selection Section -->
+                <div class="product-filters-section">
+                    <div class="product-filters">
+                        <div class="filter-group">
+                            <label for="brandSelect" class="filter-label">Brand:</label>
+                            <select id="brandSelect" class="filter-select">
+                                <option value="">Select Brand</option>
+                                <option value="apple">Apple</option>
+                                <option value="samsung">Samsung</option>
+                                <option value="sony">Sony</option>
+                                <option value="lg">LG</option>
+                                <option value="panasonic">Panasonic</option>
+                                <option value="philips">Philips</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="subcategorySelect" class="filter-label">Subcategory:</label>
+                            <select id="subcategorySelect" class="filter-select">
+                                <option value="">Select Subcategory</option>
+                                <option value="smartphones">Smartphones</option>
+                                <option value="laptops">Laptops</option>
+                                <option value="tablets">Tablets</option>
+                                <option value="cameras">Cameras</option>
+                                <option value="headphones">Headphones</option>
+                                <option value="speakers">Speakers</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section: Product Details -->
+            <div class="product-right-section">
+            <div class="product-details">
+                <!-- Enhanced Product Header -->
                 <div class="product-header">
-            <h1 id="productTitle" class="product-title">Product Name</h1>
+                    <div class="product-title-section">
+                        <h1 id="productTitle" class="product-title">Product Name</h1>
+                        <div class="product-subtitle" id="productSubtitle">Premium Quality Product</div>
+                    </div>
                     <div class="product-actions">
-                        <button class="action-btn compare-btn" id="compareBtn">
-                            <i class="fa fa-balance-scale"></i> Compare
-                        </button>
                         <button class="action-btn share-btn" id="shareBtn">
-                            <i class="fa fa-share-alt"></i> Share
+                            <i class="fa fa-share-alt"></i>
+                            <span>Share</span>
                         </button>
                     </div>
                 </div>
-                
+
+                <!-- Enhanced Stock Indicator -->
                 <div class="stock-indicator" id="stockIndicator">
-                    <i class="fa fa-circle stock-dot"></i>
+                    <div class="stock-icon">
+                        <i class="fa fa-circle stock-dot"></i>
+                    </div>
                     <span class="stock-text">IN STOCK</span>
+                    <span class="stock-count" id="stockCount">(25 available)</span>
                 </div>
-                
+
+                <!-- Enhanced Product Meta -->
                 <div class="product-meta">
                     <div class="meta-item">
-                        <span class="meta-label">Category:</span>
-                        <a href="shop.html" id="productCategory" class="meta-link">Product Category</a>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Item ID:</span>
-                        <span class="meta-value" id="productItemNumber">000000000000</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Description:</span>
-                        <span class="meta-value" id="productMetaDescription">Product description</span>
-                    </div>
-                </div>
-                
-                <div class="product-price-section">
-                    <div class="product-price">₱<span id="productPrice">0.00</span><span class="price-unit" id="priceUnit"> / PC</span></div>
-                </div>
-                
-                <div class="quantity-section">
-                    <div class="quantity-controls-with-stock" style="display: flex; align-items: center; gap: 1rem;">
-                    <div class="quantity-controls">
-                        <button class="quantity-btn minus-btn" id="minusBtn">-</button>
-                        <input type="number" class="quantity-input" id="quantityInput" value="1" min="1" max="999" step="1">
-                        <button class="quantity-btn plus-btn" id="plusBtn">+</button>
+                        <div class="meta-icon">
+                            <i class="fa fa-tag"></i>
                         </div>
-                        <div id="stockAmountDisplay" style="font-size: 1rem; color: #666; min-width: 80px;"></div>
+                        <div class="meta-content">
+                            <span class="meta-label">Category:</span>
+                            <a href="shop.html" id="productCategory" class="meta-link">Electronics > Smartphones</a>
+                        </div>
                     </div>
+                    <div class="meta-item">
+                        <div class="meta-icon">
+                            <i class="fa fa-barcode"></i>
+                        </div>
+                        <div class="meta-content">
+                            <span class="meta-label">Item ID:</span>
+                            <span class="meta-value" id="productItemNumber">000000000000</span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Enhanced Price Section -->
+                <div class="product-price-section">
+                    <div class="price-container">
+                        <div class="current-price">
+                            <span class="price-label">Price:</span>
+                            <div class="price-value">
+                                ₱<span id="productPrice">0.00</span>
+                                <span class="price-unit" id="priceUnit">/ PC</span>
+                            </div>
+                        </div>
+                        <div class="original-price" id="originalPrice" style="display: none;">
+                            <span class="original-amount">₱100.00</span>
+                            <span class="discount-badge">15% OFF</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Quantity Section -->
+                <div class="quantity-section">
+                    <div class="quantity-label">Quantity:</div>
+                    <div class="quantity-controls-with-stock">
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus-btn" id="minusBtn">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                            <input type="number" class="quantity-input" id="quantityInput" value="1" min="1" max="999" step="1">
+                            <button class="quantity-btn plus-btn" id="plusBtn">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="stock-info" id="stockAmountDisplay">
+                            <span class="stock-text">In Stock</span>
+                            <span class="stock-amount">(Max: 50)</span>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Purchase Buttons -->
                     <div class="purchase-buttons">
-                        <button class="buy-now-btn" id="buyNowBtn">BUY NOW</button>
-                        <button class="add-to-cart-btn" id="addToCartBtn">ADD TO CART</button>
+                        <button class="buy-now-btn" id="buyNowBtn">
+                            <i class="fa fa-bolt"></i>
+                            <span>BUY NOW</span>
+                        </button>
+                        <button class="add-to-cart-btn" id="addToCartBtn">
+                            <i class="fa fa-shopping-cart"></i>
+                            <span>ADD TO CART</span>
+                        </button>
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -543,9 +641,99 @@
             }
         });
 
+        // Buy Now button functionality
+        document.getElementById('buyNowBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!Auth.isLoggedIn()) {
+                // User is not logged in, show login modal
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal) {
+                    loginModal.classList.add('show');
+                    // Ensure the user login tab is active
+                    document.querySelector('#loginTabs .tab-btn[data-tab="user-login"]').click();
+                } else {
+                    // Fallback: redirect to index page with login parameter
+                    window.location.href = 'index.html?showLogin=true';
+                }
+            } else {
+                // User is logged in, redirect to checkout
+                const currentUser = Auth.getCurrentUser();
+                if (currentUser) {
+                    // Add current product to cart and redirect to checkout
+                    const productDetails = getCurrentProductDetails();
+                    if (productDetails) {
+                        addToCartAndCheckout(productDetails);
+                    } else {
+                        showToast('Error loading product details. Please try again.');
+                    }
+                }
+            }
+        });
+
+        // Helper function to get current product details
+        function getCurrentProductDetails() {
+            try {
+                const productTitle = document.getElementById('productTitle')?.textContent || 'Unknown Product';
+                const productPrice = document.getElementById('productPrice')?.textContent || '0.00';
+                const productItemNumber = document.getElementById('productItemNumber')?.textContent || '000000000000';
+                const productImage = document.getElementById('productImage')?.src || '';
+                const quantity = document.getElementById('quantityInput')?.value || '1';
+
+                return {
+                    title: productTitle,
+                    price: parseFloat(productPrice),
+                    itemNumber: productItemNumber,
+                    image: productImage,
+                    quantity: parseInt(quantity),
+                    total: parseFloat(productPrice) * parseInt(quantity)
+                };
+            } catch (error) {
+                console.error('Error getting product details:', error);
+                return null;
+            }
+        }
+
+        // Helper function to add product to cart and redirect to checkout
+        function addToCartAndCheckout(productDetails) {
+            try {
+                // Get existing cart or create new one
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+                // Check if product already exists in cart
+                const existingProductIndex = cart.findIndex(item => item.itemNumber === productDetails.itemNumber);
+
+                if (existingProductIndex >= 0) {
+                    // Update existing product quantity
+                    cart[existingProductIndex].quantity += productDetails.quantity;
+                    cart[existingProductIndex].total = cart[existingProductIndex].price * cart[existingProductIndex].quantity;
+                } else {
+                    // Add new product to cart
+                    cart.push(productDetails);
+                }
+
+                // Save updated cart to localStorage
+                localStorage.setItem('cart', JSON.stringify(cart));
+
+                // Update cart count in header
+                Auth.updateCartCount();
+
+                // Show success message
+                showToast(`Added ${productDetails.quantity} x ${productDetails.title} to cart. Redirecting to checkout...`);
+
+                // Redirect to checkout after a short delay
+                setTimeout(() => {
+                    window.location.href = 'checkout.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                showToast('Error adding product to cart. Please try again.');
+            }
+        }
+
         // getUrlParameter function is now in product.js
 
-        // The loadProductDetails function and add to cart functionality 
+        // The loadProductDetails function and add to cart functionality
         // are now handled by the product.js file
 
         // Scroll to Top functionality

@@ -486,6 +486,31 @@ app.post('/api/orders', async (req, res) => {
         const database = client.db("MyProductsDb");
         const collection = database.collection("PendingOrders");
         
+        // Normalize category bucket for each cart item
+        const normalizeCategory = (raw) => {
+            const val = String(raw || '').toLowerCase();
+            const includesAny = (list) => list.some(k => val.includes(k));
+            if (includesAny(['paint','painting'])) return 'paints';
+            if (includesAny(['power-tools','powertools','hand-tools','handtools','tool','tools','accessor'])) return 'tools-accessories';
+            if (includesAny(['building-materials','aggregate','cement','sand','gravel','hollow','plywood','wood','lumber','tile','roof'])) return 'building-materials-aggregates';
+            if (includesAny(['electrical','wire','breaker','outlet','switch'])) return 'electrical-supplies';
+            if (includesAny(['plumbing','fixture','pipe','fitting','faucet','valve'])) return 'plumbing-fixtures';
+            if (includesAny(['fastener','screw','nail','bolt','nut','consumable','adhesive','sealant','tape'])) return 'fasteners-consumables';
+            switch (String(raw || '')) {
+                case 'Power-Tools':
+                case 'Hand-Tools':
+                    return 'tools-accessories';
+                case 'Building-Materials':
+                    return 'building-materials-aggregates';
+                case 'Plumbing':
+                    return 'plumbing-fixtures';
+                case 'Electrical':
+                    return 'electrical-supplies';
+                default:
+                    return 'other';
+            }
+        };
+
         // Format the order for the database
         const formattedOrder = {
             userId: orderData.userId,
@@ -502,7 +527,9 @@ app.post('/api/orders', async (req, res) => {
                 amount_per_item: item.quantity || 1,
                 price_per_item: item.price || 0,
                 total_item_price: (item.price || 0) * (item.quantity || 1),
-                item_id: item.id || null
+                item_id: item.id || null,
+                category_bucket: item.categoryBucket || normalizeCategory(item.category),
+                category_original: item.categoryOriginal || item.category || 'unknown'
             })),
             
             // Address Information
@@ -510,11 +537,16 @@ app.post('/api/orders', async (req, res) => {
             
             // Payment Information
             paymentMethod: orderData.paymentMethod || '',
+            paymentType: orderData.paymentType || null, // Full payment or Split payment
+            paymentSplitPercent: orderData.paymentSplitPercent || null, // Percentage for split payments
             paymentReference: orderData.paymentReference || '',
             paymentAmount: parseFloat(orderData.paymentAmount) || 0,
+            changeUponDelivery: orderData.changeUponDelivery || false, // Toggle for change upon delivery
             proofOfPayment: orderData.proofOfPayment || null,
             
             // Order Details
+            subtotal: parseFloat(orderData.subtotal) || 0, // Subtotal before delivery fee
+            deliveryFee: parseFloat(orderData.deliveryFee) || 0, // Delivery fee amount
             total: parseFloat(orderData.total) || 0,
             notes: orderData.notes || 'no additional notes',
             status: orderData.status || 'active',

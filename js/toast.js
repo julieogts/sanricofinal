@@ -51,7 +51,14 @@ function showConfirm(message) {
 
 // Loading utilities
 window.LoadingUtils = {
-    show: function(text = 'Loading...', type = 'default') {
+    show: function(text = 'LOADING', type = 'default') {
+        // Ensure BODY exists; if not, defer until DOM is ready
+        if (!document.body) {
+            document.addEventListener('DOMContentLoaded', () => {
+                try { window.LoadingUtils.show(text, type); } catch (e) {}
+            }, { once: true });
+            return;
+        }
         const overlayId = type === 'dashboard' ? 'dashboardLoading' : 'loadingOverlay';
         let overlay = document.getElementById(overlayId);
         if (!overlay) {
@@ -62,15 +69,19 @@ window.LoadingUtils = {
             overlay.innerHTML = `
                 <div class="${type === 'dashboard' ? 'dashboard-spinner' : 'loading-spinner'}">
                     <div class="spinner"></div>
-                    <div class="loading-text">${text}<span class="loading-dots">...</span></div>
+                    <div class="loading-text">LOADING</div>
                 </div>
             `;
             document.body.appendChild(overlay);
         } else {
-            const loadingText = overlay.querySelector('.loading-text');
-            if (loadingText) {
-                loadingText.innerHTML = text + '<span class="loading-dots">...</span>';
+            let loadingText = overlay.querySelector('.loading-text');
+            if (!loadingText) {
+                loadingText = document.createElement('div');
+                loadingText.className = 'loading-text';
+                const spinnerContainer = overlay.querySelector('.loading-spinner, .dashboard-spinner');
+                (spinnerContainer || overlay).appendChild(loadingText);
             }
+            loadingText.textContent = 'LOADING';
         }
         overlay.classList.add('show');
     },
@@ -87,7 +98,7 @@ window.LoadingUtils = {
         if (overlay) {
             const loadingText = overlay.querySelector('.loading-text');
             if (loadingText) {
-                loadingText.innerHTML = text + '<span class="loading-dots">...</span>';
+                loadingText.textContent = 'LOADING';
             }
         }
     }

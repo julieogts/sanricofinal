@@ -343,6 +343,27 @@
     text-decoration: none;
 }
 
+.shop-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.8rem 1.5rem;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+    margin-left: 1rem;
+}
+
+.shop-button:hover {
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+}
+
 /* Styles for elements that had inline style attributes */
 .user-dropdown-hidden {
     display: none;

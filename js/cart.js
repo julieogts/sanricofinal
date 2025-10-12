@@ -30,8 +30,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (cartContent) cartContent.style.display = 'block';
         if (checkoutBtn) checkoutBtn.style.display = '';
 
+        const toNumber = (val) => {
+            if (val === null || val === undefined) return NaN;
+            if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+            return parseFloat(val);
+        };
         cartItemsContainer.innerHTML = cartItems.map(item => {
-            const itemTotal = item.price * item.quantity;
+            const priceNum = toNumber(item.price);
+            const qtyNum = parseInt(item.quantity) || 1;
+            const itemTotal = (isNaN(priceNum) ? 0 : priceNum) * qtyNum;
             let imageSrc = item.image || 'sanrico_logo_1.png';
             if (
                 imageSrc &&
@@ -53,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <h3>${item.name}</h3>
                         </div>
                     </td>
-                    <td class="price-cell">₱${item.price.toFixed(2)}</td>
+                    <td class="price-cell">₱${(isNaN(priceNum) ? 0 : priceNum).toFixed(2)}</td>
                     <td class="quantity-cell">
                         <div class="quantity-controls">
                             <button class="minus-btn" data-item-id="${item.id}">-</button>
@@ -141,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function handleMinusClick(e) {
         const itemId = e.target.getAttribute('data-item-id');
         const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
-        const currentValue = parseInt(input.value);
+        const currentValue = parseInt(input.value) || 1;
         
         if (currentValue > 1) {
             input.value = currentValue - 1;
@@ -157,13 +164,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function handlePlusClick(e) {
         const itemId = e.target.getAttribute('data-item-id');
         const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
-        const currentValue = parseInt(input.value);
+        const currentValue = parseInt(input.value) || 1;
         
         try {
             const response = await fetch(`http://localhost:3000/api/products/${itemId}`);
             const product = await response.json();
+            const availableStock = (() => {
+                const s = product.stock !== undefined ? product.stock : product.stockQuantity;
+                const n = parseInt(s);
+                return isNaN(n) ? Infinity : n;
+            })();
             
-            if (currentValue >= product.stock) {
+            if (currentValue >= availableStock) {
                 showToast('Sorry, this item is out of stock!');
                 return;
             }
@@ -178,6 +190,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Setup quantity input
     function setupQuantityInput(input) {
+        // store previous valid value
+        input.dataset.prevValue = String(parseInt(input.value) || 1);
+
         input.addEventListener('change', async (e) => {
             const itemId = e.target.getAttribute('data-item-id');
             const newValue = parseInt(e.target.value);
@@ -185,8 +200,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (isNaN(newValue) || newValue < 1) {
                 e.target.value = 1;
                 await updateQuantityFromInput(itemId, 1);
+                e.target.dataset.prevValue = '1';
             } else {
                 await updateQuantityFromInput(itemId, newValue);
+                e.target.dataset.prevValue = String(newValue);
+            }
+        });
+        input.addEventListener('input', (e) => {
+            // allow empty while typing; otherwise enforce numeric
+            const val = e.target.value;
+            if (val === '') return; // let user clear before typing
+            if (!/^\d+$/.test(val)) {
+                // revert to previous valid value
+                e.target.value = e.target.dataset.prevValue || '1';
+            } else {
+                e.target.dataset.prevValue = val;
+            }
+        });
+        input.addEventListener('blur', async (e) => {
+            const itemId = e.target.getAttribute('data-item-id');
+            const val = e.target.value;
+            if (val === '' || isNaN(parseInt(val)) || parseInt(val) < 1) {
+                e.target.value = 1;
+                e.target.dataset.prevValue = '1';
+                await updateQuantityFromInput(itemId, 1);
             }
         });
     }
@@ -201,13 +238,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             const response = await fetch(`http://localhost:3000/api/products/${id}`);
             const product = await response.json();
-            
-            if (product.stock === 0) {
+            const availableStock = (() => {
+                const s = product.stock !== undefined ? product.stock : product.stockQuantity;
+                const n = parseInt(s);
+                return isNaN(n) ? Infinity : n;
+            })();
+
+            if (availableStock === 0) {
                 showToast('This product is out of stock.');
                 return;
             }
             
-            const finalQuantity = Math.min(newQuantity, product.stock);
+            const requestedQty = parseInt(newQuantity) || 1;
+            const finalQuantity = Math.min(requestedQty, availableStock);
             
             // Always update the quantity (never remove unless explicitly requested)
             myCart.updateQuantity(id, finalQuantity);
@@ -235,7 +278,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Update total price
     function updateTotal() {
-        const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const toNumber = (val) => {
+            if (val === null || val === undefined) return NaN;
+            if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+            return parseFloat(val);
+        };
+        const subtotal = cartItems.reduce((sum, item) => {
+            const p = toNumber(item.price);
+            const q = parseInt(item.quantity) || 1;
+            return sum + ((isNaN(p) ? 0 : p) * q);
+        }, 0);
         if (subtotalElement) {
             subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
         }

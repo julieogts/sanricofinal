@@ -1163,7 +1163,19 @@
                     this.products = products.map(product => ({
                         id: product._id,
                         name: product.name,
-                        price: typeof product.price === 'object' ? parseFloat(product.price.$numberDecimal) : parseFloat(product.price),
+                        price: (() => {
+                            const toNumber = (val) => {
+                                if (val === null || val === undefined) return NaN;
+                                if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+                                return parseFloat(val);
+                            };
+                            const candidates = [product.SellingPrice, product.sellingPrice, product.Price, product.price];
+                            for (const c of candidates) {
+                                const n = toNumber(c);
+                                if (!isNaN(n)) return n;
+                            }
+                            return 0;
+                        })(),
                         category: this.mapDbCategoryToLocal(product.category),
                         image: product.image || 'images/sanrico_logo_1.png',
                         stock: product.stockQuantity || 0,

@@ -25,6 +25,7 @@
     <script src="js/notifications.js"></script>
     <script src="js/stockManager.js"></script>
     <script src="js/validation.js"></script>
+    <script src="js/addressModal.js"></script>
     
     <style>
         .search-container {
@@ -160,6 +161,7 @@
             font-weight: 600;
             color: var(--text, #333);
             display: -webkit-box;
+            line-clamp: 2; /* Standard property for compatibility */
             -webkit-line-clamp: 2; /* Non-standard, works in Chrome/Safari */
             -webkit-box-orient: vertical;
             overflow: hidden;
@@ -320,9 +322,7 @@
         }
 
         /* Scrollable sections */
-        .checkout-card {
-            /* Removed max-height and overflow-y to make it not scrollable */
-        }
+        
 
         .checkout-card::-webkit-scrollbar {
             width: 0;
@@ -390,6 +390,76 @@
             left: 50%;
             transform: translate(-50%, -50%);
             margin: 0;
+        }
+
+        /* Add Address Link Styles */
+        .add-address-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary, #e63946);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .add-address-link:hover {
+            color: var(--accent, #d62d20);
+            text-decoration: underline;
+        }
+
+        .add-address-link i {
+            font-size: 0.8rem;
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-switch .toggle-slider {
+            background-color: #dc3545 !important; /* Red for OFF */
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #28a745 !important; /* Green for ON */
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch:hover .toggle-slider {
+            box-shadow: 0 0 8px rgba(40, 167, 69, 0.3); /* Green shadow when hovering over ON state */
+        }
+
+        .toggle-switch input:not(:checked) + .toggle-slider:hover {
+            box-shadow: 0 0 8px rgba(220, 53, 69, 0.3); /* Red shadow when hovering over OFF state */
+        }
+
+        /* Responsive adjustments for payment amount row */
+        @media (max-width: 768px) {
+            .change-delivery-option {
+                padding: 0.5rem 0.75rem !important;
+            }
+            
+            .change-delivery-option > div {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+                align-items: flex-start !important;
+            }
         }
         #orderConfirmDialog::backdrop {
             background: rgba(0,0,0,0.35);
@@ -532,6 +602,10 @@
     <!-- Checkout Section -->
     <section class="checkout-section">
         <div class="container">
+            <a href="#" class="back-to-profile" onclick="return smartBack();">
+                <i class="fa fa-arrow-left"></i>
+                Back
+            </a>
             <h2 class="section-title">Checkout</h2>
             <div class="checkout-container">
                 <!-- Billing and Payment Information -->
@@ -550,6 +624,10 @@
                         <select id="address-select" class="form-control">
                             <option value="">Select an address</option>
                         </select>
+                        <a href="#" class="add-address-link" id="addAddressLink">
+                            <i class="fa fa-plus"></i>
+                            Add an address
+                        </a>
                     </div>
                     <div class="form-group">
                         <label for="phone-number">Phone Number</label>
@@ -558,11 +636,62 @@
                     <h3>Payment Information</h3>
                     <div class="form-group">
                         <label for="payment-method">Payment Method</label>
-                        <select id="payment-method" class="form-control">
-                            <option value="bank">Bank Transfer</option>
-                            <option value="gcash">GCash</option>
-                            <option value="cheque">Cheque</option>
-                        </select>
+                        <div class="payment-method-row" id="payment-method-row" style="display:flex; gap: 0.5rem; align-items: center;">
+                            <select id="payment-method" class="form-control" style="flex: 0 0 70%; max-width: 70%;">
+                                <option value="bank">Bank Transfer</option>
+                                <option value="gcash">GCash</option>
+                                <option value="cheque">Cheque</option>
+                                <option value="cod">Cash on Delivery</option>
+                            </select>
+                            <select id="payment-type" class="form-control" style="flex: 0 0 30%; max-width: 30%;">
+                                <option value="full">Full Payment</option>
+                                <option value="split">Split Payment</option>
+                            </select>
+                        </div>
+                        <div id="split-percentage-options" style="display:none; margin-top: 0.5rem;">
+                            <label style="display:block; font-size: 0.9rem; color: #555; margin-bottom: 0.25rem;">Split Percentage</label>
+                            <div style="display:flex; gap: 0.5rem; flex-wrap: nowrap; align-items: center;">
+                                <label style="display:inline-flex; align-items:center; gap:6px; border:1px solid #e5e7eb; padding:6px 10px; border-radius:8px; cursor:pointer;">
+                                    <input type="radio" name="split-percent" value="50"> 50%
+                                </label>
+                                <label style="display:inline-flex; align-items:center; gap:6px; border:1px solid #e5e7eb; padding:6px 10px; border-radius:8px; cursor:pointer;">
+                                    <input type="radio" name="split-percent" value="60"> 60%
+                                </label>
+                                <label style="display:inline-flex; align-items:center; gap:6px; border:1px solid #e5e7eb; padding:6px 10px; border-radius:8px; cursor:pointer;">
+                                    <input type="radio" name="split-percent" value="75"> 75%
+                                </label>
+                                <label style="display:inline-flex; align-items:center; gap:6px; border:1px solid #e5e7eb; padding:6px 10px; border-radius:8px; cursor:pointer;">
+                                    <input type="radio" name="split-percent" value="90"> 90%
+                                </label>
+                                <input id="split-percent-custom" type="text" placeholder="Custom value" 
+                                       style="height:36px; padding:0 10px; border:1px solid #e5e7eb; border-radius:8px; flex: 1 1 auto; min-width: 140px;"
+                                       inputmode="decimal" pattern="^\\d+(?:\\.\\d+)?$">
+                            </div>
+                        </div>
+                        <!-- Split Payment Breakdown -->
+                        <div id="split-payment-breakdown" style="display:none; margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                            <h4 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #495057; display: flex; align-items: center; gap: 0.5rem;">
+                                Split Payment Breakdown
+                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #fff; color: #6b7280; font-size: 11px; font-weight: 700; border: 1px solid #d1d5db; cursor: help; user-select: none;" title="This shows how your payment will be split between what you pay now and what you'll pay upon delivery.">?</span>
+                            </h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div style="padding: 0.75rem; background: #e3f2fd; border-radius: 6px; border-left: 4px solid #2196f3;">
+                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.25rem;">Pay Now</div>
+                                    <div id="split-pay-now" style="font-size: 1.1rem; font-weight: 600; color: #1976d2;">₱0.00</div>
+                                    <div style="font-size: 0.75rem; color: #666; margin-top: 0.25rem;" id="split-pay-now-percent">0%</div>
+                                </div>
+                                <div style="padding: 0.75rem; background: #fff3e0; border-radius: 6px; border-left: 4px solid #ff9800;">
+                                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.25rem;">Balance on Delivery</div>
+                                    <div id="split-balance-delivery" style="font-size: 1.1rem; font-weight: 600; color: #f57c00;">₱0.00</div>
+                                    <div style="font-size: 0.75rem; color: #666; margin-top: 0.25rem;" id="split-balance-percent">0%</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 0.75rem; padding: 0.5rem; background: #e8f5e8; border-radius: 4px; border-left: 3px solid #4caf50;">
+                                <div style="font-size: 0.8rem; color: #2e7d32;">
+                                    <strong>Note:</strong> You'll pay the "Pay Now" amount immediately, and the "Balance on Delivery" amount when your order is delivered.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="payment-reference">Payment Reference</label>
@@ -571,6 +700,18 @@
                     <div class="form-group">
                         <label for="payment-amount">Payment Amount</label>
                         <input type="number" id="payment-amount" class="form-control" placeholder="Enter payment amount" step="0.01" min="0">
+                        <div class="change-delivery-option" style="margin-top: 0.75rem; padding: 0.75rem 1rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="font-weight: 500; color: #495057;">Change upon delivery</span>
+                                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #fff; color: #6b7280; font-size: 11px; font-weight: 700; border: 1px solid #d1d5db; cursor: help; user-select: none;" title="If enabled, allows you to enter a higher payment amount to receive change upon delivery. This is useful when you want to pay with a larger bill and receive exact change.">?</span>
+                                </div>
+                                <label class="toggle-switch" style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                                    <input type="checkbox" id="change-delivery" style="opacity: 0; width: 0; height: 0;">
+                                    <span class="toggle-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; transition: .4s; border-radius: 24px;"></span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Proof of Payment:</label>
@@ -599,6 +740,20 @@
                     <div class="summary-row">
                         <span>Subtotal</span>
                         <span id="subtotal">₱0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span style="display:flex; align-items:center; gap:4px;" title="This is calculated based from your distance and fees during the delivery process.">
+                            Delivery Fee
+                            <span style="display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; background:#fff; color:#6b7280; font-size:10px; font-weight:700; border:1px solid #d1d5db; cursor:help; user-select:none; pointer-events:none;">?</span>
+                        </span>
+                        <span id="deliveryFee">₱0.00</span>
+                    </div>
+                    <div class="summary-row" id="split-delivery-row" style="display:none;">
+                        <span style="display:flex; align-items:center; gap:4px;" title="This amount will be paid upon delivery for split payment orders.">
+                            Split (On Delivery)
+                            <span style="display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; background:#fff; color:#6b7280; font-size:10px; font-weight:700; border:1px solid #d1d5db; cursor:help; user-select:none; pointer-events:none;">?</span>
+                        </span>
+                        <span id="splitDeliveryAmount">₱0.00</span>
                     </div>
                     <div class="summary-row total">
                         <span>Total</span>
@@ -666,6 +821,43 @@
     </footer>
 
     <script>
+        // Lightweight smart back: go to the most recent different page; fallback to index
+        function smartBack() {
+            try {
+                const current = window.location.href;
+                const ref = document.referrer || '';
+                if (ref && new URL(ref, location.origin).href !== new URL(current, location.origin).href) {
+                    window.history.back();
+                    return false;
+                }
+                const stack = JSON.parse(sessionStorage.getItem('recentPages') || '[]');
+                const target = (stack || []).find(p => {
+                    try { return new URL(p, location.origin).href !== new URL(current, location.origin).href; } catch(_) { return p !== current; }
+                });
+                if (target) {
+                    window.location.href = target;
+                    return false;
+                }
+            } catch (_) {}
+            window.location.href = 'index.html';
+            return false;
+        }
+
+        // Track recent pages (dedup, cap 10)
+        (function trackRecentPages(){
+            try {
+                const key = 'recentPages';
+                const current = window.location.href;
+                let stack = [];
+                try { stack = JSON.parse(sessionStorage.getItem(key) || '[]'); } catch(_) { stack = []; }
+                if (!stack.length || stack[0] !== current) {
+                    stack.unshift(current);
+                    stack = stack.filter((url, idx, arr) => arr.indexOf(url) === idx);
+                    if (stack.length > 10) stack = stack.slice(0, 10);
+                    sessionStorage.setItem(key, JSON.stringify(stack));
+                }
+            } catch(_) {}
+        })();
         console.log('Checkout script starting...');
         
         // Check if logged in as staff and redirect if needed
@@ -714,6 +906,13 @@
                 return;
             }
 
+            // Redirect to home if cart is empty
+            if (!window.myCart.items || window.myCart.items.length === 0) {
+                try { if (typeof showToast === 'function') showToast('Your cart is empty.'); } catch (e) {}
+                window.location.replace('index.html');
+                return;
+            }
+
             // Load billing information
             const fullNameInput = document.getElementById('full-name');
             const emailInput = document.getElementById('email');
@@ -724,7 +923,7 @@
             emailInput.value = currentUser.email || 'N/A';
             
             // Load user addresses into dropdown (from MongoDB, default first)
-            (async function populateAddresses() {
+            async function populateAddresses() {
                 addressSelect.innerHTML = '<option value="">Select an address</option>';
                 const addresses = await Auth.getUserAddressesFromDB(currentUser.id);
                 if (addresses.length > 0) {
@@ -737,7 +936,10 @@
                     addressSelect.appendChild(option);
                 });
             }
-            })();
+            }
+            
+            // Call populateAddresses immediately
+            populateAddresses();
             
             const savedPhone = Auth.getUserPhone(currentUser.id);
             document.getElementById('phone-number').value = savedPhone || '';
@@ -780,14 +982,233 @@
                 `;
             }
 
-            // Update summary
-            const subtotal = myCart.getSubtotal();
-            const total = myCart.getTotal();
-            subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
-            totalElement.textContent = `₱${total.toFixed(2)}`;
+            // Update summary using the new function
+            updateOrderSummaryTotals();
+
+            // Handle split payment UI
+            const paymentTypeEl = document.getElementById('payment-type');
+            const splitOpts = document.getElementById('split-percentage-options');
+            const splitBreakdown = document.getElementById('split-payment-breakdown');
+            
+            function refreshSplitVisibility() {
+                if (!paymentTypeEl || !splitOpts || !splitBreakdown) return;
+                const isSplit = paymentTypeEl.value === 'split';
+                splitOpts.style.display = isSplit ? 'block' : 'none';
+                splitBreakdown.style.display = isSplit ? 'block' : 'none';
+                
+                // Update order summary totals
+                updateOrderSummaryTotals();
+                
+                if (isSplit) {
+                    updateSplitPaymentBreakdown();
+                }
+            }
+            
+            function updateSplitPaymentBreakdown() {
+                if (!splitBreakdown) return;
+                
+                const total = myCart.getTotal();
+                let selectedPercent = 0;
+                
+                // Get selected percentage
+                const selectedRadio = document.querySelector('input[name="split-percent"]:checked');
+                if (selectedRadio) {
+                    selectedPercent = parseFloat(selectedRadio.value);
+                } else {
+                    const customInput = document.getElementById('split-percent-custom');
+                    if (customInput && customInput.value) {
+                        selectedPercent = parseFloat(customInput.value);
+                    }
+                }
+                
+                if (selectedPercent > 0) {
+                    const payNowAmount = (total * selectedPercent) / 100;
+                    const balanceAmount = total - payNowAmount;
+                    const balancePercent = 100 - selectedPercent;
+                    
+                    document.getElementById('split-pay-now').textContent = `₱${payNowAmount.toFixed(2)}`;
+                    document.getElementById('split-pay-now-percent').textContent = `${selectedPercent}%`;
+                    document.getElementById('split-balance-delivery').textContent = `₱${balanceAmount.toFixed(2)}`;
+                    document.getElementById('split-balance-percent').textContent = `${balancePercent}%`;
+                } else {
+                    document.getElementById('split-pay-now').textContent = '₱0.00';
+                    document.getElementById('split-pay-now-percent').textContent = '0%';
+                    document.getElementById('split-balance-delivery').textContent = `₱${total.toFixed(2)}`;
+                    document.getElementById('split-balance-percent').textContent = '100%';
+                }
+                
+                // Update order summary
+                updateOrderSummaryTotals();
+            }
+            
+            function updateOrderSummaryTotals() {
+                const subtotal = myCart.getSubtotal();
+                const deliveryFee = 0; // hardcoded for now
+                const fullTotal = subtotal + deliveryFee;
+                
+                // Update subtotal and delivery fee
+                document.getElementById('subtotal').textContent = `₱${subtotal.toFixed(2)}`;
+                document.getElementById('deliveryFee').textContent = `₱${deliveryFee.toFixed(2)}`;
+                
+                // Check if split payment is selected
+                const paymentTypeEl = document.getElementById('payment-type');
+                const isSplit = paymentTypeEl && paymentTypeEl.value === 'split';
+                const splitDeliveryRow = document.getElementById('split-delivery-row');
+                
+                if (isSplit) {
+                    // Calculate split amounts
+                    let selectedPercent = 0;
+                    const selectedRadio = document.querySelector('input[name="split-percent"]:checked');
+                    if (selectedRadio) {
+                        selectedPercent = parseFloat(selectedRadio.value);
+                    } else {
+                        const customInput = document.getElementById('split-percent-custom');
+                        if (customInput && customInput.value) {
+                            selectedPercent = parseFloat(customInput.value);
+                        }
+                    }
+                    
+                    if (selectedPercent > 0) {
+                        // Show split delivery row and calculate amounts
+                        splitDeliveryRow.style.display = 'block';
+                        const balanceAmount = fullTotal - ((fullTotal * selectedPercent) / 100);
+                        document.getElementById('splitDeliveryAmount').textContent = `₱${balanceAmount.toFixed(2)}`;
+                        
+                        // Update total to show only the amount being paid now
+                        const payNowAmount = (fullTotal * selectedPercent) / 100;
+                        document.getElementById('total').textContent = `₱${payNowAmount.toFixed(2)}`;
+                    } else {
+                        // If no percentage selected yet, show full total and hide split delivery row
+                        splitDeliveryRow.style.display = 'none';
+                        document.getElementById('total').textContent = `₱${fullTotal.toFixed(2)}`;
+                    }
+                } else {
+                    // Hide split delivery row and show full total
+                    splitDeliveryRow.style.display = 'none';
+                    document.getElementById('total').textContent = `₱${fullTotal.toFixed(2)}`;
+                }
+            }
+            
+            if (paymentTypeEl) {
+                paymentTypeEl.addEventListener('change', refreshSplitVisibility);
+                refreshSplitVisibility();
+            }
+            
+            // Add event listeners for split percentage changes
+            document.querySelectorAll('input[name="split-percent"]').forEach(radio => {
+                radio.addEventListener('change', updateSplitPaymentBreakdown);
+            });
+
+            // Hide/show fields when COD is selected
+            const paymentMethodEl = document.getElementById('payment-method');
+            function setupPaymentMethodVisibility() {
+                if (!paymentMethodEl) return;
+                const isCOD = paymentMethodEl.value === 'cod';
+
+                // Expand payment method dropdown when COD is selected
+                const paymentMethodRow = document.getElementById('payment-method-row');
+                if (paymentMethodRow) {
+                    if (isCOD) {
+                        paymentMethodEl.style.flex = '1';
+                        paymentMethodEl.style.maxWidth = '100%';
+                    } else {
+                        paymentMethodEl.style.flex = '0 0 70%';
+                        paymentMethodEl.style.maxWidth = '70%';
+                    }
+                }
+
+                // Hide split type dropdown when COD
+                if (paymentTypeEl) {
+                    // Hide the select itself
+                    paymentTypeEl.style.display = isCOD ? 'none' : '';
+                }
+                // Hide split extra options entirely
+                if (splitOpts) {
+                    splitOpts.style.display = isCOD ? 'none' : (paymentTypeEl && paymentTypeEl.value === 'split' ? 'block' : 'none');
+                }
+                // Hide split breakdown when COD
+                if (splitBreakdown) {
+                    splitBreakdown.style.display = isCOD ? 'none' : (paymentTypeEl && paymentTypeEl.value === 'split' ? 'block' : 'none');
+                }
+
+                // Hide Payment Reference group
+                const paymentRefEl = document.getElementById('payment-reference');
+                const paymentRefGroup = paymentRefEl ? paymentRefEl.closest('.form-group') : null;
+                if (paymentRefGroup) paymentRefGroup.style.display = isCOD ? 'none' : '';
+
+                // Hide Proof of Payment group
+                const proofSection = document.querySelector('.image-upload-section');
+                const proofGroup = proofSection ? proofSection.closest('.form-group') : null;
+                if (proofGroup) proofGroup.style.display = isCOD ? 'none' : '';
+
+                // Show change upon delivery option for all payment methods
+                const changeDeliveryOption = document.querySelector('.change-delivery-option');
+                if (changeDeliveryOption) {
+                    changeDeliveryOption.style.display = 'block';
+                }
+            }
+            if (paymentMethodEl) {
+                paymentMethodEl.addEventListener('change', setupPaymentMethodVisibility);
+                setupPaymentMethodVisibility();
+            }
+
+            // Validate custom split input
+            const customSplit = document.getElementById('split-percent-custom');
+            if (customSplit) {
+                customSplit.addEventListener('input', () => {
+                    // allow only digits and one optional dot
+                    const cleaned = customSplit.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+                    customSplit.value = cleaned;
+                    const val = parseFloat(cleaned);
+                    const digitCount = (cleaned.match(/\d/g) || []).length;
+                    if (!isNaN(val) && digitCount >= 2 && val < 50) {
+                        if (!customSplit.dataset.warnShown) {
+                            if (typeof showToast === 'function') showToast('Custom split must be at least 50%');
+                            customSplit.dataset.warnShown = '1';
+                        }
+                        // Auto-correct immediately to 50 while typing
+                        customSplit.value = '50';
+                        customSplit.style.borderColor = '';
+                        customSplit.style.boxShadow = '';
+                    } else {
+                        customSplit.dataset.warnShown = '';
+                        customSplit.style.borderColor = '';
+                        customSplit.style.boxShadow = '';
+                    }
+                    // Update split payment breakdown
+                    updateSplitPaymentBreakdown();
+                });
+                customSplit.addEventListener('blur', () => {
+                    const val = parseFloat(customSplit.value);
+                    if (isNaN(val)) {
+                        customSplit.value = '';
+                        updateSplitPaymentBreakdown();
+                        return;
+                    }
+                    if (val < 50) {
+                        showToast('Custom split must be at least 50%');
+                        customSplit.value = '50';
+                        customSplit.style.borderColor = '';
+                        customSplit.style.boxShadow = '';
+                    }
+                    // Update split payment breakdown
+                    updateSplitPaymentBreakdown();
+                });
+            }
 
             // Initialize cart count
             Auth.updateCartCount();
+
+            // Add address link event listener
+            document.getElementById('addAddressLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.AddressModal.show();
+                window.AddressModal.setOnAddressSaved(() => {
+                    showToast('Address added successfully!', 'success');
+                    // Refresh the address dropdown
+                    populateAddresses();
+                });
+            });
 
             // Listen for cart updates from other pages
             window.addEventListener('cartUpdated', (event) => {
@@ -919,17 +1340,36 @@
                         if (!firstMissing) firstMissing = paymentMethod;
                         missingFields.push('Payment method');
                     }
-                    if (!paymentReference.value) {
-                        if (!firstMissing) firstMissing = paymentReference;
-                        missingFields.push('Payment reference');
+                    const isCOD = paymentMethod.value === 'cod';
+                    if (!isCOD) {
+                        if (!paymentReference.value) {
+                            if (!firstMissing) firstMissing = paymentReference;
+                            missingFields.push('Payment reference');
+                        }
+                        if (!paymentAmount.value || Number(paymentAmount.value) <= 0) {
+                            if (!firstMissing) firstMissing = paymentAmount;
+                            missingFields.push('Payment amount');
+                        }
+                        if (!proofOfPayment) {
+                            if (!firstMissing) firstMissing = document.getElementById('dropZone');
+                            missingFields.push('Proof of payment');
+                        }
+                    } else {
+                        // For COD, only validate payment amount if change upon delivery is not checked
+                        const changeDelivery = document.getElementById('change-delivery');
+                        if (!changeDelivery.checked && (!paymentAmount.value || Number(paymentAmount.value) <= 0)) {
+                            if (!firstMissing) firstMissing = paymentAmount;
+                            missingFields.push('Payment amount');
+                        }
                     }
-                    if (!paymentAmount.value || Number(paymentAmount.value) <= 0) {
-                        if (!firstMissing) firstMissing = paymentAmount;
-                        missingFields.push('Payment amount');
-                    }
-                    if (!proofOfPayment) {
-                        if (!firstMissing) firstMissing = document.getElementById('dropZone');
-                        missingFields.push('Proof of payment');
+                    
+                    // For non-COD methods, check if change upon delivery is checked and payment amount is valid
+                    if (!isCOD) {
+                        const changeDelivery = document.getElementById('change-delivery');
+                        if (changeDelivery.checked && (!paymentAmount.value || Number(paymentAmount.value) <= 0)) {
+                            if (!firstMissing) firstMissing = paymentAmount;
+                            missingFields.push('Payment amount');
+                        }
                     }
 
                     if (firstMissing) {
@@ -958,18 +1398,58 @@
                         return;
                     }
                     
-                    // All fields are filled, now check payment amount vs total
-                    const totalAmount = window.myCart.getTotal();
+                    // All fields are filled, if not COD then check payment amount vs total
+                    const fullTotalAmount = window.myCart.getTotal();
                     const enteredAmount = Number(paymentAmount.value);
+                    const payingByCOD = paymentMethod.value === 'cod';
+                    const changeDelivery = document.getElementById('change-delivery');
+                    const paymentType = document.getElementById('payment-type');
                     
-                    console.log('Payment validation - Total:', totalAmount, 'Entered:', enteredAmount);
+                    // Calculate the amount that should be paid now based on payment type
+                    let requiredPaymentAmount = fullTotalAmount;
+                    if (paymentType && paymentType.value === 'split') {
+                        // For split payments, calculate the amount to be paid now
+                        let selectedPercent = 0;
+                        const selectedRadio = document.querySelector('input[name="split-percent"]:checked');
+                        if (selectedRadio) {
+                            selectedPercent = parseFloat(selectedRadio.value);
+                        } else {
+                            const customInput = document.getElementById('split-percent-custom');
+                            if (customInput && customInput.value) {
+                                selectedPercent = parseFloat(customInput.value);
+                            }
+                        }
+                        if (selectedPercent > 0) {
+                            requiredPaymentAmount = (fullTotalAmount * selectedPercent) / 100;
+                        }
+                    }
                     
-                    if (enteredAmount < totalAmount) {
-                        const difference = totalAmount - enteredAmount;
-                        const message = `Payment is ₱${difference.toFixed(2)} lower than the total price`;
+                    console.log('Payment validation - Full Total:', fullTotalAmount, 'Required Now:', requiredPaymentAmount, 'Entered:', enteredAmount);
+                    
+                    // Check payment amount validation based on change upon delivery option
+                    const changeDeliveryChecked = changeDelivery.checked;
+                    
+                    if (!payingByCOD && !changeDeliveryChecked && enteredAmount < requiredPaymentAmount) {
+                        const difference = requiredPaymentAmount - enteredAmount;
+                        const message = `Payment is ₱${difference.toFixed(2)} lower than the required amount (₱${requiredPaymentAmount.toFixed(2)})`;
                         
                         console.log('Payment insufficient, showing toast:', message);
                         console.log('showToast function available:', typeof showToast);
+                        
+                        if (typeof showToast === 'function') {
+                            showToast(message);
+                        } else {
+                            alert(message);
+                        }
+                        setTimeout(() => {
+                            paymentAmount.focus();
+                        }, 100);
+                        return;
+                    }
+                    
+                    // For COD with change upon delivery, ensure amount is at least the total
+                    if (payingByCOD && changeDeliveryChecked && enteredAmount < fullTotalAmount) {
+                        const message = `Payment amount must be at least ₱${fullTotalAmount.toFixed(2)} to receive change upon delivery`;
                         
                         if (typeof showToast === 'function') {
                             showToast(message);
@@ -1004,18 +1484,31 @@
             const addressSelect = document.getElementById('address-select');
             const selectedAddressText = addressSelect.options[addressSelect.selectedIndex]?.text || '';
             
+            let selectedSplit = (document.querySelector('input[name="split-percent"]:checked')?.value) || null;
+            const customSplitEl = document.getElementById('split-percent-custom');
+            if (!selectedSplit && customSplitEl && customSplitEl.value) {
+                const cv = parseFloat(customSplitEl.value);
+                if (!isNaN(cv)) selectedSplit = String(cv);
+            }
+            const payingByCOD = document.getElementById('payment-method').value === 'cod';
+            const changeDelivery = document.getElementById('change-delivery');
             const formData = {
                 fullName: document.getElementById('full-name').value,
                 email: document.getElementById('email').value,
                 address: selectedAddressText,
                 phoneNumber: document.getElementById('phone-number').value,
                 paymentMethod: document.getElementById('payment-method').value,
-                paymentReference: document.getElementById('payment-reference').value,
+                paymentType: payingByCOD ? null : document.getElementById('payment-type').value,
+                paymentSplitPercent: payingByCOD ? null : selectedSplit,
+                paymentReference: payingByCOD ? null : document.getElementById('payment-reference').value,
                 paymentAmount: document.getElementById('payment-amount').value,
+                changeUponDelivery: changeDelivery.checked,
                 notes: notesValue || 'no additional notes',
                 cartItems: window.myCart.items,
+                subtotal: window.myCart.getSubtotal(),
+                deliveryFee: 0, // Currently hardcoded to 0, can be made dynamic later
                 total: window.myCart.getTotal(),
-                proofOfPayment: window.getUploadedFile ? window.getUploadedFile() : null
+                proofOfPayment: payingByCOD ? null : (window.getUploadedFile ? window.getUploadedFile() : null)
             };
             
             console.log('Checkout data:', formData);
@@ -1044,7 +1537,33 @@
                     paymentReference: orderData.paymentReference,
                     paymentAmount: parseFloat(orderData.paymentAmount),
                     notes: orderData.notes,
-                    cartItems: orderData.cartItems,
+                    cartItems: (orderData.cartItems || []).map(item => ({
+                        ...item,
+                        categoryBucket: item.categoryBucket || (function(raw){
+                            const val = String(raw || '').toLowerCase();
+                            const includesAny = (list) => list.some(k => val.includes(k));
+                            if (includesAny(['paint','painting'])) return 'paints';
+                            if (includesAny(['power-tools','powertools','hand-tools','handtools','tool','tools','accessor'])) return 'tools-accessories';
+                            if (includesAny(['building-materials','aggregate','cement','sand','gravel','hollow','plywood','wood','lumber','tile','roof'])) return 'building-materials-aggregates';
+                            if (includesAny(['electrical','wire','breaker','outlet','switch'])) return 'electrical-supplies';
+                            if (includesAny(['plumbing','fixture','pipe','fitting','faucet','valve'])) return 'plumbing-fixtures';
+                            if (includesAny(['fastener','screw','nail','bolt','nut','consumable','adhesive','sealant','tape'])) return 'fasteners-consumables';
+                            switch (String(raw || '')) {
+                                case 'Power-Tools':
+                                case 'Hand-Tools':
+                                    return 'tools-accessories';
+                                case 'Building-Materials':
+                                    return 'building-materials-aggregates';
+                                case 'Plumbing':
+                                    return 'plumbing-fixtures';
+                                case 'Electrical':
+                                    return 'electrical-supplies';
+                                default:
+                                    return 'other';
+                            }
+                        })(item.category),
+                        categoryOriginal: item.category || 'unknown'
+                    })),
                     total: orderData.total,
                     proofOfPayment: proofOfPaymentBase64,
                     orderDate: new Date(),
@@ -1508,6 +2027,7 @@
                             <option value="bank">Bank Transfer</option>
                             <option value="gcash">GCash</option>
                             <option value="cheque">Cheque</option>
+                            <option value="cod">Cash on Delivery</option>
                         </select>
                     </div>
                     

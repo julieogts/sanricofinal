@@ -44,14 +44,132 @@
             });
         })();
     </script>
+
+    <script>
+      // Moving Letters effect for brandline (Tobias Ahlin)
+      (function(){
+        function runBrandAnimation(){
+          var brand = document.querySelector('.carousel-brandline');
+          if (!brand) return;
+          brand.querySelectorAll('.letters').forEach(function(el){
+            el.innerHTML = el.textContent.replace(/([^\s])/g, '<span class="letter">$1<\/span>');
+          });
+          if (window.anime) {
+            var tl = anime.timeline({loop: false});
+            tl.add({
+                targets: '.carousel-brandline .letter',
+                translateY: ["1.2em", 0],
+                opacity: [0, 1],
+                duration: 800,
+                delay: function(el, i) { return 28 * i; },
+                easing: 'easeInOutCubic'
+              })
+              // Pulse the CTA button simultaneously with the text animation
+              .add({
+                targets: '.carousel-cta',
+                scale: [0.96, 1.04, 1],
+                duration: 800,
+                easing: 'easeInOutCubic'
+              }, 0);
+
+            // After the button animation, run a smooth typewriter text change on the CTA
+            tl.finished.then(function(){
+              var el = document.querySelector('.carousel-cta .cta-text');
+              if (!el) return;
+              var stepDelay = 40; // typing/delete speed per character (ms)
+              var sequenceDelay = 500; // delay between full sentence transitions (ms)
+
+              function typeTo(targetText, cb){
+                var current = el.textContent;
+                // find common prefix to minimize ops
+                var i = 0; while (i < current.length && i < targetText.length && current[i] === targetText[i]) i++;
+                // delete extra chars
+                function del(){
+                  if (current.length > i){
+                    current = current.slice(0, -1);
+                    el.textContent = current;
+                    return setTimeout(del, stepDelay);
+                  }
+                  add();
+                }
+                function add(){
+                  if (current.length < targetText.length){
+                    current = targetText.slice(0, current.length + 1);
+                    el.textContent = current;
+                    return setTimeout(add, stepDelay);
+                  }
+                  if (typeof cb === 'function') cb();
+                }
+                // Start with delete then add
+                del();
+              }
+
+              // Sequence starts after a 1 second delay:
+              // Build something Today -> Imagine something Today -> Shop Today
+              setTimeout(function(){
+                typeTo('Imagine something Today', function(){
+                  setTimeout(function(){
+                    typeTo('Shop Today', function(){
+                      // 0.2s after finishing, add a quick glow to emphasize the final CTA text
+                      setTimeout(function(){
+                        var txt = document.querySelector('.carousel-cta .cta-text');
+                        var btn = document.querySelector('.carousel-cta');
+                        if (txt) {
+                          txt.classList.add('glow');
+                          setTimeout(function(){ txt.classList.remove('glow'); }, 650);
+                        }
+                        if (btn) {
+                          btn.classList.add('glow-btn');
+                          setTimeout(function(){ btn.classList.remove('glow-btn'); }, 650);
+                        }
+                      }, 200);
+                    });
+                  }, sequenceDelay);
+                });
+              }, 1000);
+            });
+          }
+        }
+        // Start the video 1s before loader ends, then run animations after hide
+        window.addEventListener('pageLoaderPrehide', function(){
+          var iframe = document.querySelector('.carousel-video');
+          if (iframe && iframe.contentWindow) {
+            try { iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*'); } catch(e) {}
+          }
+        }, { once: true });
+
+        // Ensure seamless looping by restarting video when it ends
+        window.addEventListener('message', function(event) {
+          if (event.data && event.data.event === 'video-progress') {
+            if (event.data.info && event.data.info.playerState === 0) { // Video ended
+              var iframe = document.querySelector('.carousel-video');
+              if (iframe && iframe.contentWindow) {
+                try { 
+                  iframe.contentWindow.postMessage('{"event":"command","func":"seekTo","args":"0","id":"0"}', '*');
+                  iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                } catch(e) {}
+              }
+            }
+          }
+        });
+        window.addEventListener('pageLoaderHidden', runBrandAnimation, { once: true });
+        // Safety fallback in case loader is disabled
+        window.addEventListener('load', function(){ setTimeout(runBrandAnimation, 50); }, { once: true });
+      })();
+    </script>
     <script>
         // Show a first-load spinner overlay for the index page
         (function() {
             if (window.LoadingUtils) {
-                window.LoadingUtils.show('Loading homepage...');
-                window.addEventListener('load', function() {
-                    setTimeout(function(){ window.LoadingUtils.hide(); }, 300);
-                });
+                var shownAt = Date.now();
+                window.LoadingUtils.show('LOADING');
+                var onLoadHide = function(){
+                    var elapsed = Date.now() - shownAt;
+                    var remaining = Math.max(0, 200 - elapsed);
+                    setTimeout(function(){ window.LoadingUtils.hide(); }, remaining);
+                };
+                if (document.readyState === 'complete') onLoadHide();
+                else window.addEventListener('load', onLoadHide);
             } else {
                 // Fallback if LoadingUtils not yet defined
                 window.addEventListener('load', function(){
@@ -64,6 +182,7 @@
     <script src="js/shop.js"></script>
     <script src="js/shop-fix.js"></script>
     <script src="js/stockDisplay.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
     
     <style>
         .search-container {
@@ -211,6 +330,11 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             overflow: hidden;
+            /* Ensure consistent size and structure */
+            height: 420px; /* extra space so dropdowns are fully visible */
+            display: flex;
+            flex-direction: column;
+            width: 240px; /* fixed card width to avoid melting */
         }
 
         .category-card:hover {
@@ -231,8 +355,9 @@
 
         .category-img {
             position: relative;
-            height: 200px;
+            height: 200px; /* fixed image area height for consistency */
             overflow: hidden;
+            flex: 0 0 200px;
         }
 
         .category-img img {
@@ -258,6 +383,8 @@
 
         .category-content {
             padding: 1rem;
+            flex: 1 1 auto; /* let content fill remaining space without pushing */
+            min-height: 0; /* prevent overflow growth */
         }
 
         .category-title {
@@ -275,6 +402,7 @@
             background: white;
             padding: 0.5rem;
             border-top: 1px solid #f0f0f0;
+            flex: 0 0 auto; /* keep at the bottom, fixed height content */
         }
 
         /* Category stock display */
@@ -306,45 +434,62 @@
             gap: 0.5rem;
         }
 
+        /* Modern selects */
         .category-filters .subcategory-dropdown,
         .category-filters .brand-dropdown {
             flex: 1;
-            padding: 0.3rem 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            background: #fff;
-            color: #333;
+            height: 36px;
+            padding: 0 36px 0 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            background-color: #fff;
+            color: #111827;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px 16px;
         }
 
         .category-filters .subcategory-dropdown:hover,
         .category-filters .brand-dropdown:hover {
-            border-color: #e63946;
-            background: #fff;
+            border-color: #d1d5db;
+            background-color: #fafafa;
         }
 
         .category-filters .subcategory-dropdown:focus,
         .category-filters .brand-dropdown:focus {
             outline: none;
             border-color: #e63946;
-            box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15);
         }
 
         /* Featured products styling - same as shop page */
+        /* Featured products - modern compact cards */
+        .featured .product-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* show 4 items on desktop */
+            gap: 16px;
+        }
         .featured .product-card {
             position: relative;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #eef0f3;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             overflow: hidden;
+            height: 300px; /* tighter */
+            display: flex;
+            flex-direction: column;
         }
 
         .featured .product-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.10);
         }
 
         .featured .product-link {
@@ -360,8 +505,9 @@
 
         .featured .product-img {
             position: relative;
-            height: 200px;
+            height: 150px; /* more compact */
             overflow: hidden;
+            flex: 0 0 150px;
         }
 
         .featured .product-img img {
@@ -380,8 +526,8 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
-            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.55));
+            padding: 0.6rem 0.7rem;
             color: white;
             display: flex;
             justify-content: space-between;
@@ -389,14 +535,17 @@
         }
 
         .featured .in-stock-ping {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            background: rgba(76, 175, 80, 0.9);
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
+            gap: 6px;
+            background: #16a34a; /* solid green */
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
         }
 
         .featured .ping-dot {
@@ -414,8 +563,82 @@
         }
 
         .featured .product-content {
-            padding: 1rem;
+            padding: 8px 12px 6px 12px; /* reduce vertical space */
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
+        .featured .product-title {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.3;
+            color: #1f2937;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .featured .product-img-overlay .product-price {
+            background: #fff;
+            color: #e63946;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        @media (max-width: 1200px) {
+            .featured .product-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+        }
+        @media (max-width: 1024px) {
+            .featured .product-card { height: 280px; }
+            .featured .product-img { height: 140px; flex-basis: 140px; }
+        }
+        @media (max-width: 768px) {
+            .featured .product-grid { gap: 12px; }
+            .featured .product-card { height: 260px; }
+            .featured .product-img { height: 130px; flex-basis: 130px; }
+        }
+        
+        /* Carousel products grid: fixed card sizes and responsive wrapping */
+        .category-carousel { width: 100%; }
+        .carousel-products { display: none; }
+        .carousel-products.active { display: block; }
+        .carousel-products-inner {
+            display: flex;
+            flex-wrap: wrap; /* wrap to next row when container is not enough */
+            gap: 16px;
+            align-items: stretch;
+        }
+        
+        @media (max-width: 1024px) {
+            .category-card { width: 220px; }
+            .category-card,
+            .featured .product-card { height: 380px; }
+        }
+        @media (max-width: 768px) {
+            .carousel-products-inner { gap: 12px; }
+            .category-card,
+            .featured .product-card {
+                height: 360px;
+            }
+            .category-card { width: 180px; }
+            .category-img,
+            .featured .product-img {
+                height: 180px;
+                flex-basis: 180px;
+            }
+        }
+
+        /* Make loading skeleton layout horizontal as well */
+        .skeleton-products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .skeleton-product-card { width: 240px; height: 420px; }
+        @media (max-width: 1024px) { .skeleton-product-card { width: 220px; height: 380px; } }
+        @media (max-width: 768px) { .skeleton-product-card { width: 180px; height: 360px; } }
 
         .featured .product-title {
             margin: 0;
@@ -485,6 +708,19 @@
             outline: none;
             border-color: #e63946;
             box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+        }
+        /* Quick glow for CTA text and subtle button halo */
+        .carousel-cta .cta-text.glow { animation: ctaQuickGlow 0.6s ease-out 1; }
+        .carousel-cta.glow-btn { animation: ctaBtnHalo 0.6s ease-out 1; }
+        @keyframes ctaQuickGlow {
+            0%   { color: #fff; text-shadow: 0 0 0 rgba(255,255,255,0), 0 0 0 rgba(230,57,70,0); }
+            40%  { color: #ffffff; text-shadow: 0 0 12px rgba(255,255,255,0.95), 0 0 24px rgba(230,57,70,0.85), 0 0 36px rgba(230,57,70,0.6); }
+            100% { color: #fff; text-shadow: 0 0 0 rgba(255,255,255,0), 0 0 0 rgba(230,57,70,0); }
+        }
+        @keyframes ctaBtnHalo {
+            0%   { box-shadow: 0 4px 15px rgba(230,57,70,0.40); transform: translateY(0); }
+            40%  { box-shadow: 0 0 22px rgba(230,57,70,0.9), 0 0 44px rgba(230,57,70,0.5); transform: translateY(-1px); }
+            100% { box-shadow: 0 4px 15px rgba(230,57,70,0.40); transform: translateY(0); }
         }
     </style>
 </head>
@@ -560,6 +796,55 @@
         </div>
     </header>
 
+    <!-- Retractable Sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-edge-fill" id="sidebarEdgeFill"></div>
+    <nav class="retractable-sidebar" id="retractableSidebar">
+        <div class="sidebar-header">
+            <h3>Quick Navigation</h3>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="sidebar-content">
+            <ul class="sidebar-nav">
+                <li><a href="index.html" class="sidebar-link active">
+                    <i class="fa fa-home"></i>
+                    <span>Home</span>
+                </a></li>
+                <li><a href="shop.html" class="sidebar-link">
+                    <i class="fa fa-shopping-bag"></i>
+                    <span>Shop</span>
+                </a></li>
+                <li><a href="cart.html" class="sidebar-link">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span>Cart</span>
+                </a></li>
+                <li><a href="profile.html" class="sidebar-link">
+                    <i class="fa fa-user"></i>
+                    <span>Profile</span>
+                </a></li>
+                <li><a href="order-history.html" class="sidebar-link">
+                    <i class="fa fa-history"></i>
+                    <span>Order History</span>
+                </a></li>
+                <li><a href="aboutus.html" class="sidebar-link">
+                    <i class="fa fa-info-circle"></i>
+                    <span>About Us</span>
+                </a></li>
+
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <div class="toggle-icon">
+            <span class="toggle-text">Quick Navigation</span>
+            <i class="fa fa-bars"></i>
+        </div>
+    </button>
+
     <!-- Navigation Menu -->
     <nav class="main-nav">
         <div class="container">
@@ -575,22 +860,23 @@
     <!-- Hero Section -->
     <section class="hero-carousel">
       <div class="carousel-container">
-        <div class="carousel-slides">
-          <div class="carousel-slide active">
-            <img src="images/filler-carousel-1.jpg" alt="Carousel Image 1">
-          </div>
-          <div class="carousel-slide">
-            <img src="images/filler-carousel-2.jpg" alt="Carousel Image 2">
-          </div>
-          <div class="carousel-slide">
-            <img src="images/filler-carousel-3.jpg" alt="Carousel Image 3">
-          </div>
-        </div>
+        <iframe
+          class="carousel-video"
+          src="https://www.youtube.com/embed/NxlvzUmsRq4?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&playsinline=1&vq=hd1080&enablejsapi=1&loop=1&playlist=NxlvzUmsRq4&iv_load_policy=3&fs=0&cc_load_policy=0&start=0&end=0"
+          title="Hero Background Video"
+          frameborder="0"
+          allow="autoplay; encrypted-media; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
         <div class="carousel-content">
           <div class="carousel-nav">
-            <a href="shop.html" class="carousel-cta">Today &nbsp;<i class="fa fa-shopping-cart"></i></a>
+             <a href="shop.html" class="carousel-cta"><span class="cta-text">Build something Today</span> &nbsp;<i class="fa fa-shopping-cart"></i></a>
           </div>
-          <h1 class="carousel-headline"><span>Build</span> <span>Create</span> <span>Succeed</span></h1>
+          <h1 class="carousel-brandline ml5">
+            <img src="images/sanrico_logo_1.png" alt="Sanrico Mercantile Logo" class="brandline-logo">
+            <span class="letters brand-red">Sanrico</span>
+            <span class="letters brand-blue">Mercantile</span>
+          </h1>
         </div>
       </div>
     </section>
@@ -823,19 +1109,27 @@
                 <div class="footer-col">
                     <h4>Shop</h4>
                     <ul>
-                        <li><a href="shop.html?category=power-tools">Power Tools</a></li>
-                        <li><a href="shop.html?category=hand-tools">Hand Tools</a></li>
-                        <li><a href="shop.html?category=plumbing">Plumbing</a></li>
-                        <li><a href="shop.html?category=electrical">Electrical</a></li>
-                        <li><a href="shop.html?category=building-materials">Building Materials</a></li>
+                        <li><a href="shop.html?category=paints">Paints and Painting Supplies</a></li>
+                        <li><a href="shop.html?category=tools-accessories">Tools and Accessories</a></li>
+                        <li><a href="shop.html?category=building-materials-aggregates">Building Materials and Aggregates</a></li>
+                        <li><a href="shop.html?category=electrical-supplies">Electrical Supplies</a></li>
+                        <li><a href="shop.html?category=plumbing-fixtures">Plumbing and Fixtures</a></li>
+                        <li><a href="shop.html?category=fasteners-consumables">Fasteners and Consumables</a></li>
+                        <li><a href="shop.html?category=other">Other</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <h4>Information</h4>
                     <ul>
                         <li><a href="aboutus.html">About Us</a></li>
-                        <li><a href="faq.html">FAQ</a></li>
                         <li><a href="profile.html">User Info</a></li>
+                    </ul>
+                    <h5>Policies</h5>
+                    <ul>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="online-security.html">Online Security & Safety</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -868,9 +1162,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner">
             <div class="spinner"></div>
-            <div class="loading-text">
-                Authenticating<span class="loading-dots">...</span>
-            </div>
+            <div class="loading-text">LOADING</div>
         </div>
     </div>
 
@@ -933,12 +1225,20 @@
                 const uniqueCategories = [...new Set(products.map(p => p.category))];
                 console.log('Unique categories in database:', uniqueCategories);
                 
-                // Convert price from string to number
+                // Convert price to number - prefer SellingPrice, but fall back gracefully
+                const toNumber = (val) => {
+                    if (val === null || val === undefined) return NaN;
+                    if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+                    return parseFloat(val);
+                };
                 products = products.map(product => {
-                    const convertedProduct = {
-                        ...product,
-                        price: typeof product.price === 'object' ? parseFloat(product.price.$numberDecimal) : parseFloat(product.price)
-                    };
+                    const candidates = [product.SellingPrice, product.sellingPrice, product.Price, product.price];
+                    let finalPrice = NaN;
+                    for (const c of candidates) {
+                        const n = toNumber(c);
+                        if (!isNaN(n)) { finalPrice = n; break; }
+                    }
+                    const convertedProduct = { ...product, price: finalPrice };
                     console.log('Converted product:', convertedProduct);
                     return convertedProduct;
                 });
@@ -949,15 +1249,47 @@
                 products = products.filter(product => product.stockQuantity > 0);
                 console.log('Products after stock filtering:', products);
 
-                // Group products by category
-                const productsByCategory = products.reduce((acc, product) => {
-                    const category = product.category.toLowerCase();
-                    if (!acc[category]) {
-                        acc[category] = [];
+                // Group products by normalized category buckets
+                const normalizeCategory = (raw) => {
+                    const val = String(raw || '').toLowerCase();
+                    const includesAny = (list) => list.some(k => val.includes(k));
+                    if (includesAny(['paint','painting'])) return 'paints';
+                    if (includesAny(['power-tools','powertools','hand-tools','handtools','tool','tools','accessor'])) return 'tools-accessories';
+                    if (includesAny(['building-materials','aggregate','cement','sand','gravel','hollow','plywood','wood','lumber','tile','roof'])) return 'building-materials-aggregates';
+                    if (includesAny(['electrical','wire','breaker','outlet','switch'])) return 'electrical-supplies';
+                    if (includesAny(['plumbing','fixture','pipe','fitting','faucet','valve'])) return 'plumbing-fixtures';
+                    if (includesAny(['fastener','screw','nail','bolt','nut','consumable','adhesive','sealant','tape'])) return 'fasteners-consumables';
+                    switch (String(raw || '')) {
+                        case 'Power-Tools':
+                        case 'Hand-Tools':
+                            return 'tools-accessories';
+                        case 'Building-Materials':
+                            return 'building-materials-aggregates';
+                        case 'Plumbing':
+                            return 'plumbing-fixtures';
+                        case 'Electrical':
+                            return 'electrical-supplies';
+                        default:
+                            return 'other';
                     }
-                    acc[category].push(product);
-                    return acc;
-                }, {});
+                };
+
+                const desiredOrder = [
+                    'paints',
+                    'tools-accessories',
+                    'building-materials-aggregates',
+                    'electrical-supplies',
+                    'plumbing-fixtures',
+                    'fasteners-consumables',
+                    'other'
+                ];
+
+                const productsByCategory = {};
+                products.forEach(product => {
+                    const bucket = normalizeCategory(product.category);
+                    if (!productsByCategory[bucket]) productsByCategory[bucket] = [];
+                    productsByCategory[bucket].push(product);
+                });
 
                 // Hide loading skeletons
                 if (categorySkeleton) categorySkeleton.classList.add('hidden');
@@ -965,7 +1297,11 @@
                 
                 // Create category carousels
                 const categoryCarousel = document.querySelector('.category-carousel');
-                categoryCarousel.innerHTML = Object.entries(productsByCategory).map(([category, categoryProducts], index) => `
+                const orderedEntries = desiredOrder
+                    .filter(key => productsByCategory[key] && productsByCategory[key].length)
+                    .map(key => [key, productsByCategory[key]]);
+
+                categoryCarousel.innerHTML = orderedEntries.map(([category, categoryProducts], index) => `
                     <div class="carousel-products ${index === 0 ? 'active' : ''}" data-category="${category}">
                         <div class="carousel-products-inner">
                             ${categoryProducts.sort(() => Math.random() - 0.5).slice(0, 4).map(product => `
@@ -984,19 +1320,11 @@
                                         </div>
                                     </a>
                                     
-                                    <!-- Stock and dropdowns outside the category link -->
+                                    <!-- Stock outside the category link -->
                                     <div class="category-details">
                                         <div class="category-stock">
                                             <span class="stock-label">Stock:</span>
                                             <span class="stock-amount">${product.stockQuantity}</span>
-                                        </div>
-                                        <div class="category-filters">
-                                            <select class="subcategory-dropdown">
-                                                <option value="">Subcategory</option>
-                                            </select>
-                                            <select class="brand-dropdown">
-                                                <option value="">Brand</option>
-                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -1008,10 +1336,19 @@
                 // Update category tabs based on available categories
                 const categoryTabs = document.querySelector('.category-tabs');
                 if (categoryTabs) {
-                    const availableCategories = Object.keys(productsByCategory);
+                    const labelMap = {
+                        'paints': 'Paints and Painting Supplies',
+                        'tools-accessories': 'Tools and Accessories',
+                        'building-materials-aggregates': 'Building Materials and Aggregates',
+                        'electrical-supplies': 'Electrical Supplies',
+                        'plumbing-fixtures': 'Plumbing and Fixtures',
+                        'fasteners-consumables': 'Fasteners and Consumables',
+                        'other': 'Other'
+                    };
+                    const availableCategories = orderedEntries.map(([key]) => key);
                     categoryTabs.innerHTML = availableCategories.map((category, index) => `
                         <button class="category-tab ${index === 0 ? 'active' : ''}" data-category="${category}">
-                            ${category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                            ${labelMap[category] || category}
                         </button>
                     `).join('');
 
@@ -1066,19 +1403,11 @@
                                 </div>
                             </a>
                             
-                            <!-- Stock and dropdowns outside the product link -->
+                            <!-- Stock outside the product link -->
                             <div class="product-details">
                                 <div class="product-stock">
                                     <span class="stock-label">Stock:</span>
                                     <span class="stock-amount">${product.stockQuantity}</span>
-                                </div>
-                                <div class="product-filters">
-                                    <select class="subcategory-dropdown">
-                                        <option value="">Subcategory</option>
-                                    </select>
-                                    <select class="brand-dropdown">
-                                        <option value="">Brand</option>
-                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -1097,38 +1426,7 @@
 
                 if (window.initializeStockDisplay) window.initializeStockDisplay();
 
-                // Add event listeners to index page dropdowns
-                document.querySelectorAll('.subcategory-dropdown').forEach(dropdown => {
-                    dropdown.addEventListener('change', (e) => {
-                        console.log('Index product subcategory changed:', e.target.value);
-                        // TODO: Implement individual product subcategory filtering
-                    });
-                    
-                    // Prevent dropdown clicks from triggering product link
-                    dropdown.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                    });
-                    
-                    dropdown.addEventListener('mousedown', (e) => {
-                        e.stopPropagation();
-                    });
-                });
 
-                document.querySelectorAll('.brand-dropdown').forEach(dropdown => {
-                    dropdown.addEventListener('change', (e) => {
-                        console.log('Index product brand changed:', e.target.value);
-                        // TODO: Implement individual product brand filtering
-                    });
-                    
-                    // Prevent dropdown clicks from triggering product link
-                    dropdown.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                    });
-                    
-                    dropdown.addEventListener('mousedown', (e) => {
-                        e.stopPropagation();
-                    });
-                });
 
             } catch (error) {
                 console.error('Error during initial load:', error);
@@ -1303,54 +1601,144 @@
             });
         }
 
-        // Carousel functionality
+        // Removed old carousel functionality (image slides) – background video is used now
+    </script>
+
+    <!-- Sidebar JavaScript Functionality -->
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const slides = document.querySelectorAll('.carousel-slide');
-            const spans = document.querySelectorAll('.carousel-headline span');
-            let currentSlide = 0;
-            const totalSlides = slides.length;
+            const sidebar = document.getElementById('retractableSidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            const loadingOverlay = document.querySelector('.loading-overlay, .dashboard-loading');
+            const sidebarEdgeFill = document.getElementById('sidebarEdgeFill');
 
-            // Initialize all spans to white
-            spans.forEach(span => {
-                span.classList.remove('active');
-                span.style.color = '#fff';
-            });
-
-            // Set initial state
-            slides[0].classList.add('active');
-            slides[0].style.opacity = '1';
-            spans[0].classList.add('active');
-            spans[0].style.color = '#e63946';
-
-            function updateSlide(index) {
-                // Remove active class from all slides and spans
-                slides.forEach(slide => {
-                    slide.classList.remove('active');
-                    slide.style.opacity = '0';
-                });
-                spans.forEach(span => {
-                    span.classList.remove('active');
-                    span.style.color = '#fff';
-                });
-                
-                // Add active class to current slide and span
-                slides[index].classList.add('active');
-                slides[index].style.opacity = '1';
-                spans[index].classList.add('active');
-                spans[index].style.color = '#e63946';
-                
-                // Update current slide index
-                currentSlide = index;
+            // Toggle sidebar function
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                sidebarEdgeFill.classList.remove('show');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
             }
 
-            // Auto rotate slides every 20 seconds
-            setInterval(() => {
-                const nextSlide = (currentSlide + 1) % totalSlides;
-                updateSlide(nextSlide);
-            }, 5000);
+            // Close sidebar function
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                sidebarEdgeFill.classList.remove('show');
+            }
+
+            // Event listeners
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Show connector on hover and hide on leave (only when closed)
+            sidebarToggle.addEventListener('mouseenter', function() {
+                if (!sidebar.classList.contains('active')) {
+                    sidebarEdgeFill.classList.add('show');
+                }
+            });
+            sidebarToggle.addEventListener('mouseleave', function() {
+                if (!sidebar.classList.contains('active')) {
+                    sidebarEdgeFill.classList.remove('show');
+                }
+            });
+
+            // Close sidebar when clicking on links
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Add a small delay to allow navigation
+                    setTimeout(closeSidebar, 100);
+                });
+            });
+
+            // Close sidebar on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                    closeSidebar();
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('active')) {
+                    // Keep sidebar open on desktop
+                } else if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                    // Close sidebar on mobile if it's open
+                    closeSidebar();
+                }
+            });
+
+            // Add active class to current page link
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Smooth scroll for anchor links
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href.startsWith('#')) {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Tease animation setup: start after loading overlay hides, then repeat every 10s
+            function startTeaseLoop() {
+                // avoid multiple intervals
+                if (window.__sidebarTeaseInterval) return;
+                // initial delay before first tease to avoid immediate motion
+                setTimeout(() => {
+                    const runTease = () => {
+                        if (sidebar.classList.contains('active')) return; // don't tease while open
+                        sidebarEdgeFill.classList.add('show');
+                        sidebarToggle.classList.add('tease');
+                        sidebar.classList.add('tease');
+                        // remove classes after animation completes
+                        setTimeout(() => {
+                            sidebarToggle.classList.remove('tease');
+                            sidebar.classList.remove('tease');
+                            sidebarEdgeFill.classList.remove('show');
+                        }, 1000);
+                    };
+                    runTease();
+                    window.__sidebarTeaseInterval = setInterval(runTease, 10000);
+                }, 800);
+            }
+
+            // If a loading overlay exists, wait for it to hide; otherwise start immediately
+            const overlayEl = document.querySelector('.loading-overlay.show, .dashboard-loading.show') || document.querySelector('.loading-overlay, .dashboard-loading');
+            if (overlayEl) {
+                const observer = new MutationObserver(() => {
+                    const isHidden = !overlayEl.classList.contains('show');
+                    if (isHidden) {
+                        observer.disconnect();
+                        startTeaseLoop();
+                    }
+                });
+                observer.observe(overlayEl, { attributes: true, attributeFilter: ['class'] });
+                // Fallback: start after 5s if we never see a hide event
+                setTimeout(startTeaseLoop, 5000);
+            } else {
+                startTeaseLoop();
+            }
         });
-
-
     </script>
 </body>
-</html>                                                                                                                             
+</html>

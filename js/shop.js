@@ -17,7 +17,7 @@ function showLoadingProducts() {
 function showLoadingProductCount() {
     const productCountElement = document.getElementById('product-count');
     if (productCountElement) {
-        productCountElement.textContent = 'Loading...';
+        productCountElement.textContent = 'LOADING';
     }
 }
 
@@ -64,12 +64,20 @@ async function loadProducts() {
         const uniqueCategories = [...new Set(products.map(p => p.category))];
         console.log('Unique categories in database:', uniqueCategories);
         
-        // Convert price from string to number
+        // Convert price to number - prefer SellingPrice, but fall back gracefully
+        const toNumber = (val) => {
+            if (val === null || val === undefined) return NaN;
+            if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+            return parseFloat(val);
+        };
         products = products.map(product => {
-            const convertedProduct = {
-                ...product,
-                price: typeof product.price === 'object' ? parseFloat(product.price.$numberDecimal) : parseFloat(product.price)
-            };
+            const candidates = [product.SellingPrice, product.sellingPrice, product.Price, product.price];
+            let finalPrice = NaN;
+            for (const c of candidates) {
+                const n = toNumber(c);
+                if (!isNaN(n)) { finalPrice = n; break; }
+            }
+            const convertedProduct = { ...product, price: finalPrice };
             console.log('Converted product:', convertedProduct);
             return convertedProduct;
         });
@@ -146,33 +154,55 @@ function filterAndSortProducts(selectedCategory = null) {
         }
         
         // First filter the products
+        const normalizeCategory = (raw) => {
+            const val = String(raw || '').toLowerCase();
+            const includesAny = (list) => list.some(k => val.includes(k));
+            if (includesAny(['paint', 'painting'])) return 'paints';
+            if (includesAny(['power-tools','powertools','hand-tools','handtools','tool','tools','accessor'])) return 'tools-accessories';
+            if (includesAny(['building-materials','aggregate','cement','sand','gravel','hollow','plywood','wood','lumber','tile','roof'])) return 'building-materials-aggregates';
+            if (includesAny(['electrical','wire','breaker','outlet','switch'])) return 'electrical-supplies';
+            if (includesAny(['plumbing','fixture','pipe','fitting','faucet','valve'])) return 'plumbing-fixtures';
+            if (includesAny(['fastener','screw','nail','bolt','nut','consumable','adhesive','sealant','tape'])) return 'fasteners-consumables';
+            switch (String(raw || '')) {
+                case 'Power-Tools':
+                case 'Hand-Tools':
+                    return 'tools-accessories';
+                case 'Building-Materials':
+                    return 'building-materials-aggregates';
+                case 'Plumbing':
+                    return 'plumbing-fixtures';
+                case 'Electrical':
+                    return 'electrical-supplies';
+                default:
+                    return 'other';
+            }
+        };
+
+        const normalizeRequested = (slug) => {
+            switch (slug) {
+                case 'all': return 'all';
+                case 'power-tools':
+                case 'hand-tools':
+                    return 'tools-accessories';
+                case 'building-materials':
+                    return 'building-materials-aggregates';
+                case 'plumbing':
+                    return 'plumbing-fixtures';
+                case 'electrical':
+                    return 'electrical-supplies';
+                default:
+                    return slug || 'all';
+            }
+        };
+
+        const requestedBucket = normalizeRequested(category);
+
         filteredProducts = products.filter(product => {
             const matchesSearch = !searchQuery || 
                 (product.name && product.name.toLowerCase().includes(searchQuery));
             
-            // Map HTML category values to database category values
-            let categoryMatches = category === 'all';
-            if (category !== 'all') {
-                switch(category) {
-                    case 'power-tools':
-                        categoryMatches = product.category === 'Power-Tools';
-                        break;
-                    case 'hand-tools':
-                        categoryMatches = product.category === 'Hand-Tools';
-                        break;
-                    case 'building-materials':
-                        categoryMatches = product.category === 'Building-Materials';
-                        break;
-                    case 'plumbing':
-                        categoryMatches = product.category === 'Plumbing';
-                        break;
-                    case 'electrical':
-                        categoryMatches = product.category === 'Electrical';
-                        break;
-                    default:
-                        categoryMatches = false;
-                }
-            }
+            const productBucket = normalizeCategory(product.category);
+            const categoryMatches = requestedBucket === 'all' ? true : (requestedBucket === productBucket);
             
             const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
             
@@ -263,6 +293,7 @@ function displayProducts(productsToDisplay = filteredProducts) {
         return;
     }
 
+    const userLoggedIn = (typeof Auth !== 'undefined' && typeof Auth.isLoggedIn === 'function') ? Auth.isLoggedIn() : false;
     productGrid.innerHTML = displayedProducts.map(product => `
         <div class="product-card" data-stock-quantity="${product.stockQuantity}">
             <a href="product.html?id=${product._id}" class="product-link">
@@ -296,7 +327,7 @@ function displayProducts(productsToDisplay = filteredProducts) {
             </div>
             
             <div class="drag-handle ${product.stockQuantity < 1 ? 'out-of-stock' : ''}" 
-                 ${product.stockQuantity >= 1 && currentMode === 'drag' ? 'draggable="true"' : ''}
+                 ${product.stockQuantity >= 1 && currentMode === 'drag' && userLoggedIn ? 'draggable="true"' : ''}
                  data-product-id="${product._id}"
                  data-product-name="${product.name}"
                  data-product-price="${product.price}"
@@ -308,10 +339,28 @@ function displayProducts(productsToDisplay = filteredProducts) {
         </div>
     `).join('');
 
-    // Add drag event listeners to drag handles (cart icons) - always drag mode
+    // Add drag or login prompt handlers to drag handles
     document.querySelectorAll('.drag-handle').forEach(handle => {
-        handle.addEventListener('dragstart', handleDragStart);
-        handle.addEventListener('dragend', handleDragEnd);
+        if (userLoggedIn) {
+            // Allow drag
+            handle.addEventListener('dragstart', handleDragStart);
+            handle.addEventListener('dragend', handleDragEnd);
+        } else {
+            // Block drag and prompt login
+            handle.removeAttribute('draggable');
+            handle.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+                showToast('Please log in to add items to your cart.');
+                if (window.showLoginModal) window.showLoginModal();
+                else { const lm = document.getElementById('loginModal'); if (lm) lm.classList.add('show'); }
+            });
+            handle.addEventListener('click', (e) => {
+                e.preventDefault();
+                showToast('Please log in to add items to your cart.');
+                if (window.showLoginModal) window.showLoginModal();
+                else { const lm = document.getElementById('loginModal'); if (lm) lm.classList.add('show'); }
+            });
+        }
     });
 
     // Add event listeners to product-level dropdowns
@@ -542,6 +591,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // If no explicit sort chosen, default to price ascending when applying a range
+        const sortBy = document.getElementById('sort-by');
+        if (sortBy && (sortBy.value === 'all' || sortBy.value === 'name')) {
+            sortBy.value = 'price-low';
+        }
+
         filterAndSortProducts();
             showToast('Price filter applied');
     });
@@ -565,11 +620,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let initialCategory = 'all';
     
     if (urlCategory) {
-        // Check if the URL category is valid
-        const validCategories = ['all', 'power-tools', 'hand-tools', 'building-materials', 'plumbing', 'electrical'];
-        if (validCategories.includes(urlCategory)) {
-            initialCategory = urlCategory;
-        }
+        const legacyToNew = {
+            'power-tools': 'tools-accessories',
+            'hand-tools': 'tools-accessories',
+            'building-materials': 'building-materials-aggregates',
+            'plumbing': 'plumbing-fixtures',
+            'electrical': 'electrical-supplies'
+        };
+        const newValid = ['all','paints','tools-accessories','building-materials-aggregates','electrical-supplies','plumbing-fixtures','fasteners-consumables','other'];
+        const mapped = legacyToNew[urlCategory] || urlCategory;
+        if (newValid.includes(mapped)) initialCategory = mapped;
     }
     
     // Set the active category link based on URL parameter or default to 'all'

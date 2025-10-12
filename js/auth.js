@@ -303,9 +303,33 @@ class Auth {
         if (!this.isLoggedIn()) {
             return { success: false, message: 'Please log in to add items to the cart.' };
         }
+        const normalizeCategory = (raw) => {
+            const val = String(raw || '').toLowerCase();
+            const includesAny = (list) => list.some(k => val.includes(k));
+            if (includesAny(['paint', 'painting'])) return 'paints';
+            if (includesAny(['power-tools','powertools','hand-tools','handtools','tool','tools','accessor'])) return 'tools-accessories';
+            if (includesAny(['building-materials','aggregate','cement','sand','gravel','hollow','plywood','wood','lumber','tile','roof'])) return 'building-materials-aggregates';
+            if (includesAny(['electrical','wire','breaker','outlet','switch'])) return 'electrical-supplies';
+            if (includesAny(['plumbing','fixture','pipe','fitting','faucet','valve'])) return 'plumbing-fixtures';
+            if (includesAny(['fastener','screw','nail','bolt','nut','consumable','adhesive','sealant','tape'])) return 'fasteners-consumables';
+            switch (String(raw || '')) {
+                case 'Power-Tools':
+                case 'Hand-Tools':
+                    return 'tools-accessories';
+                case 'Building-Materials':
+                    return 'building-materials-aggregates';
+                case 'Plumbing':
+                    return 'plumbing-fixtures';
+                case 'Electrical':
+                    return 'electrical-supplies';
+                default:
+                    return 'other';
+            }
+        };
         const productWithCategory = {
             ...product,
-            category: product.category || 'unknown'
+            category: product.category || 'unknown',
+            categoryBucket: normalizeCategory(product.category)
         };
         const cart = new Cart();
         const result = cart.addItem(productWithCategory);
@@ -668,9 +692,23 @@ class Cart {
             this.items.push({
                 id: product._id,
                 name: product.name,
-                price: typeof product.price === 'object' ? parseFloat(product.price.$numberDecimal) : parseFloat(product.price),
+                price: (() => {
+                    const toNumber = (val) => {
+                        if (val === null || val === undefined) return NaN;
+                        if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+                        return parseFloat(val);
+                    };
+                    const candidates = [product.SellingPrice, product.sellingPrice, product.Price, product.price];
+                    for (const c of candidates) {
+                        const n = toNumber(c);
+                        if (!isNaN(n)) return n;
+                    }
+                    return 0;
+                })(),
                 image: product.image,
-                quantity: 1
+                quantity: 1,
+                categoryBucket: product.categoryBucket || 'other',
+                categoryOriginal: product.category || 'unknown'
             });
         }
         
@@ -688,8 +726,9 @@ class Cart {
         console.log('updateQuantity called:', { productId, quantity, itemIndex, currentItems: this.items.length });
         
         if (itemIndex !== -1) {
-            // Ensure quantity is at least 1
-            const finalQuantity = Math.max(1, quantity);
+            // Ensure quantity is a valid integer >= 1
+            const parsedQty = parseInt(quantity);
+            const finalQuantity = isNaN(parsedQty) ? 1 : Math.max(1, parsedQty);
             console.log('Updating quantity from', this.items[itemIndex].quantity, 'to', finalQuantity);
             this.items[itemIndex].quantity = finalQuantity;
             this.saveCart(skipEvent);

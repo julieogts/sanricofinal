@@ -183,6 +183,10 @@
     <!-- Cart Section -->
     <section class="cart-section">
         <div class="container">
+            <a href="#" class="back-to-profile" onclick="return smartBack();">
+                <i class="fa fa-arrow-left"></i>
+                Back
+            </a>
             <h2 class="section-title">Shopping Cart</h2>
             
             <!-- Empty Cart Message -->
@@ -483,6 +487,43 @@
     </footer>
 
     <script>
+        // Lightweight smart back: go to the most recent different page; fallback to index
+        function smartBack() {
+            try {
+                const current = window.location.href;
+                const ref = document.referrer || '';
+                if (ref && new URL(ref, location.origin).href !== new URL(current, location.origin).href) {
+                    window.history.back();
+                    return false;
+                }
+                const stack = JSON.parse(sessionStorage.getItem('recentPages') || '[]');
+                const target = (stack || []).find(p => {
+                    try { return new URL(p, location.origin).href !== new URL(current, location.origin).href; } catch(_) { return p !== current; }
+                });
+                if (target) {
+                    window.location.href = target;
+                    return false;
+                }
+            } catch (_) {}
+            window.location.href = 'index.html';
+            return false;
+        }
+
+        // Track recent pages (dedup, cap 10)
+        (function trackRecentPages(){
+            try {
+                const key = 'recentPages';
+                const current = window.location.href;
+                let stack = [];
+                try { stack = JSON.parse(sessionStorage.getItem(key) || '[]'); } catch(_) { stack = []; }
+                if (!stack.length || stack[0] !== current) {
+                    stack.unshift(current);
+                    stack = stack.filter((url, idx, arr) => arr.indexOf(url) === idx);
+                    if (stack.length > 10) stack = stack.slice(0, 10);
+                    sessionStorage.setItem(key, JSON.stringify(stack));
+                }
+            } catch(_) {}
+        })();
         // Check if logged in as staff and redirect if needed
         if (Auth.redirectIfStaff()) {
             // Stop further execution if redirecting

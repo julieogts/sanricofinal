@@ -13,11 +13,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Failed to fetch products');
             }
             products = await response.json();
-            // Convert price from string to number
-            products = products.map(product => ({
-                ...product,
-                price: typeof product.price === 'object' ? parseFloat(product.price.$numberDecimal) : parseFloat(product.price)
-            }));
+            // Convert price to number - prefer SellingPrice, but fall back gracefully
+            const toNumber = (val) => {
+                if (val === null || val === undefined) return NaN;
+                if (typeof val === 'object' && val.$numberDecimal !== undefined) return parseFloat(val.$numberDecimal);
+                return parseFloat(val);
+            };
+            products = products.map(product => {
+                const candidates = [product.SellingPrice, product.sellingPrice, product.Price, product.price];
+                let finalPrice = NaN;
+                for (const c of candidates) {
+                    const n = toNumber(c);
+                    if (!isNaN(n)) { finalPrice = n; break; }
+                }
+                return { ...product, price: finalPrice };
+            });
         } catch (error) {
             console.error('Error loading products:', error);
         }
