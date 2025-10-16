@@ -93,7 +93,7 @@
     <div class="top-bar">
         <div class="container">
             <div class="social-links">
-                <span>Welcome to</span>
+                <span><marquee>Let's build something great together!</marquee></span>
             </div>
             <div class="user-links">
                 <div class="notification-container">
@@ -166,7 +166,20 @@
                 <a href="index.html">Home</a>
                 <a href="shop.html">Shop</a>
                 <a href="aboutus.html" class="active">About Us</a>
-                <a href="faq.html">FAQ</a>
+
+                <!-- Information Dropdown Menu -->
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" id="policiesDropdown">
+                        Information
+                        <i class="fa fa-chevron-down dropdown-arrow"></i>
+                    </button>
+                    <div class="nav-dropdown-menu" id="policiesDropdownMenu">
+                        <a href="terms.html" class="dropdown-item">Terms and Conditions</a>
+                        <a href="privacy.html" class="dropdown-item">Privacy Policy</a>
+                        <a href="security.html" class="dropdown-item">Online Security & Safety</a>
+                        <a href="faq.html" class="dropdown-item">FAQs</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -218,8 +231,10 @@
                     <h4>Information</h4>
                     <ul>
                         <li><a href="aboutus.html">About Us</a></li>
-                        <li><a href="faq.html">FAQ</a></li>
-                        <li><a href="profile.html">User Info</a></li>
+                        <li><a href="faq.html">FAQs</a></li>
+                        <li><a href="terms.html">Terms and Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="security.html">Online Security & Safety</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -506,6 +521,65 @@
                 behavior: 'smooth'
             });
         });
+
+        // Policies Dropdown Functionality
+        const policiesDropdown = document.getElementById('policiesDropdown');
+        const policiesDropdownMenu = document.getElementById('policiesDropdownMenu');
+
+        if (policiesDropdown && policiesDropdownMenu) {
+            // Toggle dropdown on click
+            policiesDropdown.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Close other open dropdowns first
+                document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+                    if (toggle !== policiesDropdown) {
+                        toggle.classList.remove('active');
+                    }
+                });
+
+                // Toggle current dropdown
+                const isActive = policiesDropdown.classList.contains('active');
+                policiesDropdown.classList.toggle('active');
+
+                // Close dropdown if it was already active
+                if (isActive) {
+                    policiesDropdown.classList.remove('active');
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!policiesDropdown.contains(e.target) && !policiesDropdownMenu.contains(e.target)) {
+                    policiesDropdown.classList.remove('active');
+                }
+            });
+
+            // Close dropdown on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && policiesDropdown.classList.contains('active')) {
+                    policiesDropdown.classList.remove('active');
+                }
+            });
+
+            // Handle dropdown item clicks
+            const dropdownItems = policiesDropdownMenu.querySelectorAll('.dropdown-item');
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Close dropdown after item selection
+                    policiesDropdown.classList.remove('active');
+                });
+            });
+
+            // Mobile touch support
+            if ('ontouchstart' in window) {
+                policiesDropdown.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                });
+            }
+        }
     </script>
     
     <!-- Toast Container -->

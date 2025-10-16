@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Online Security & Safety | Sanrico Mercantile Inc.</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        /* Page specific styles */
+        .policy-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .policy-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .policy-title {
+            font-size: 2.5rem;
+            color: #e63946;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .last-updated {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .policy-intro {
+            font-size: 1.2rem;
+            color: #555;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .policy-section {
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #e63946;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .section-content {
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .section-content p {
+            margin-bottom: 1rem;
+        }
+
+        .section-content ul,
+        .section-content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        .section-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-box {
+            background: #f0f7ff;
+            border: 1px solid #e63946;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .success-box {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .security-tips {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .security-tip {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+
+        .security-tip h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .security-tip p {
+            color: #555;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-info {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .contact-info h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .contact-info p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1e40af;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .steps-list {
+            counter-reset: step-counter;
+        }
+
+        .steps-list li {
+            counter-increment: step-counter;
+            margin-bottom: 1rem;
+            padding-left: 3rem;
+            position: relative;
+        }
+
+        .steps-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #e63946;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .policy-container {
+                padding: 1rem;
+            }
+
+            .policy-title {
+                font-size: 2rem;
+            }
+
+            .policy-section {
+                padding: 1rem;
+            }
+
+            .security-tips {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="social-links">
+                <span><marquee>Let's build something great together!</marquee></span>
+            </div>
+            <div class="user-links">
+                <div class="notification-container">
+                    <button class="notification-btn" id="notificationBtn">
+                        <span class="notification-label">Notifications</span>
+                        <i class="fa fa-bell notification-icon"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                            <button class="clear-all-btn" id="clearAllBtn">Clear All</button>
+                    </div>
+                        <div class="notification-list" id="notificationList">
+                            <!-- Notifications will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                <a href="#" id="topLoginBtn">Login</a>
+                <div id="userDropdown" class="user-dropdown" style="display:none;">
+                  <a href="profile.html" class="dropdown-item">My Account</a>
+                  <a href="order-history.html" class="dropdown-item">Order History</a>
+                  <a href="addresses.html" class="dropdown-item">My Addresses</a>
+                  <a href="#" id="logoutBtn" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo-container">
+                <a href="index.html" class="logo-link">
+                    <div class="logo-wrapper" data-tooltip="Take me home">
+                        <img src="images/sanrico_logo_1.png" alt="Sanrico Mercantile Logo" class="logo-img">
+                    </div>
+                    <span class="logo">
+                        <span>Sanrico</span> <span>Mercantile</span>
+                    </span>
+                </a>
+            </div>
+            <form class="header-search">
+                <input type="text" placeholder="Search for products..." />
+                <button type="submit">
+                    <svg width="20" height="20" fill="none" stroke="#e53935" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+            </form>
+            <div class="header-icons">
+                <a href="#" class="cart-btn" id="cartBtn">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+                <div class="cart-dropdown" id="cartDropdown" style="display: none;">
+                  <div class="cart-dropdown-content" id="cartDropdownContent">
+                    <!-- Content will be filled by JS -->
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="aboutus.html">About Us</a>
+
+                <!-- Information Dropdown Menu -->
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" id="policiesDropdown">
+                        Information
+                        <i class="fa fa-chevron-down dropdown-arrow"></i>
+                    </button>
+                    <div class="nav-dropdown-menu" id="policiesDropdownMenu">
+                        <a href="terms.html" class="dropdown-item">Terms and Conditions</a>
+                        <a href="privacy.html" class="dropdown-item">Privacy Policy</a>
+                        <a href="security.html" class="dropdown-item">Online Security & Safety</a>
+                        <a href="faq.html" class="dropdown-item">FAQs</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="policy-container">
+        <div class="policy-header">
+            <div class="security-badge">
+                <i class="fa fa-lock"></i>
+                Secure Online Shopping
+            </div>
+            <h1 class="policy-title">Online Security & Safety</h1>
+            <p class="last-updated">Last Updated: October 13, 2025</p>
+            <p class="policy-intro">
+                Your security is our top priority at Sanrico Mercantile Inc. This guide explains how we protect your data and provides practical tips to help you stay safe while shopping online.
+            </p>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">1. Our Security Infrastructure</h2>
+            <div class="section-content">
+                <p>We implement multiple layers of security to protect your data:</p>
+
+                <div class="success-box">
+                    <h3>Security Measures:</h3>
+                    <ul>
+                        <li><strong>SSL/TLS Encryption:</strong> All data transmission encrypted</li>
+                        <li><strong>Secure Data Centers:</strong> 24/7 monitored facilities</li>
+                        <li><strong>PCI DSS Compliance:</strong> Payment security standards</li>
+                        <li><strong>Regular Audits:</strong> Independent security testing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">2. Safe Account Practices</h2>
+            <div class="section-content">
+                <p>Essential tips for keeping your account secure:</p>
+
+                <div class="security-tips">
+                    <div class="security-tip">
+                        <h4><i class="fa fa-key"></i> Strong Passwords</h4>
+                        <p>• Use 8+ characters with letters, numbers, symbols</p>
+                        <p>• Unique passwords for each account</p>
+                    </div>
+
+                    <div class="security-tip">
+                        <h4><i class="fa fa-mobile"></i> Two-Factor Authentication</h4>
+                        <p>• Enable 2FA for extra security</p>
+                        <p>• Use authenticator apps when possible</p>
+                    </div>
+
+                    <div class="security-tip">
+                        <h4><i class="fa fa-sign-out"></i> Secure Logout</h4>
+                        <p>• Log out on shared computers</p>
+                        <p>• Clear browser data after use</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">3. Safe Shopping Guidelines</h2>
+            <div class="section-content">
+                <p><strong>Before Shopping:</strong> Verify "https://" and padlock icon, check reviews, ensure updated antivirus.</p>
+
+                <p><strong>During Shopping:</strong> Only enter payment info on secure pages, avoid saving payment details unnecessarily.</p>
+
+                <p><strong>After Shopping:</strong> Monitor accounts for unauthorized transactions, save receipts and confirmations.</p>
+
+                <div class="warning-box">
+                    <strong>Avoid Scams:</strong> Be wary of deals too good to be true, urgent pressure tactics, and suspicious payment requests.
+                </div>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">4. Payment Security</h2>
+            <div class="section-content">
+                <p><strong>Our Protection:</strong> We use tokenization (don't store full card details), fraud detection systems, and secure payment processing.</p>
+
+                <p><strong>Your Security:</strong> Consider using credit cards over debit cards, virtual card numbers, and digital wallets for additional protection.</p>
+
+                <p><strong>Device Protection:</strong> Keep software updated, use antivirus software, avoid public Wi-Fi for shopping, and use VPNs when necessary.</p>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">5. Contact Security Team</h2>
+            <div class="section-content">
+                <p><strong>Report Issues:</strong> If you suspect account compromise or security problems, contact us immediately.</p>
+
+                <ol class="steps-list">
+                    <li>Change your password immediately</li>
+                    <li>Contact our security team</li>
+                    <li>Monitor your financial accounts</li>
+                    <li>Report to authorities if money lost</li>
+                </ol>
+
+                <div class="contact-info">
+                    <h3>24/7 Security Support</h3>
+                    <p><i class="fa fa-phone"></i> Hotline: (555) 123-4567</p>
+                    <p><i class="fa fa-envelope"></i> Email: security@sanricomercantile.com</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="shop.html?category=paints">Paints and Painting Supplies</a></li>
+                        <li><a href="shop.html?category=tools-accessories">Tools and Accessories</a></li>
+                        <li><a href="shop.html?category=building-materials-aggregates">Building Materials and Aggregates</a></li>
+                        <li><a href="shop.html?category=electrical-supplies">Electrical Supplies</a></li>
+                        <li><a href="shop.html?category=plumbing-fixtures">Plumbing and Fixtures</a></li>
+                        <li><a href="shop.html?category=fasteners-consumables">Fasteners and Consumables</a></li>
+                        <li><a href="shop.html?category=other">Other</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Information</h4>
+                    <ul>
+                        <li><a href="aboutus.html">About Us</a></li>
+                        <li><a href="faq.html">FAQs</a></li>
+                        <li><a href="terms.html">Terms and Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="security.html">Online Security & Safety</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="order-history.html">Order History</a></li>
+                        <li><a href="addresses.html">My Addresses</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul>
+                        <li>Regalado Avenue</li>
+                        <li>Fairview, Quezon City</li>
+                        <li>Phone: (555) 123-4567</li>
+                        <li>Email: <a href="mailto:support@sanricomercantile@gmail.com">support@sanricomercantile@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 Sanrico Mercantile Inc. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <script src="js/toast.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/headerSearch.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/addressModal.js"></script>
+
+    <!-- Policies Dropdown Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const policiesDropdown = document.getElementById('policiesDropdown');
+            const policiesDropdownMenu = document.getElementById('policiesDropdownMenu');
+
+            if (policiesDropdown && policiesDropdownMenu) {
+                // Toggle dropdown on click
+                policiesDropdown.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Close other open dropdowns first
+                    document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+                        if (toggle !== policiesDropdown) {
+                            toggle.classList.remove('active');
+                        }
+                    });
+
+                    // Toggle current dropdown
+                    const isActive = policiesDropdown.classList.contains('active');
+                    policiesDropdown.classList.toggle('active');
+
+                    // Close dropdown if it was already active
+                    if (isActive) {
+                        policiesDropdown.classList.remove('active');
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!policiesDropdown.contains(e.target) && !policiesDropdownMenu.contains(e.target)) {
+                        policiesDropdown.classList.remove('active');
+                    }
+                });
+
+                // Close dropdown on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && policiesDropdown.classList.contains('active')) {
+                        policiesDropdown.classList.remove('active');
+                    }
+                });
+
+                // Handle dropdown item clicks
+                const dropdownItems = policiesDropdownMenu.querySelectorAll('.dropdown-item');
+                dropdownItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        // Get the href and navigate to it
+                        const href = this.getAttribute('href');
+                        if (href && href !== '#') {
+                            window.location.href = href;
+                        }
+                        // Close dropdown after item selection
+                        policiesDropdown.classList.remove('active');
+                    });
+                });
+
+                // Mobile touch support
+                if ('ontouchstart' in window) {
+                    policiesDropdown.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                    });
+                }
+            }
+        });
+    </script>
+
+    <!-- Scroll to Top functionality -->
+    <script>
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>

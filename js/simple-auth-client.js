@@ -1,7 +1,7 @@
 // 🎯 Simple Authentication Client - Works with existing MongoDB setup
 class SimpleAuthClient {
     constructor() {
-        this.baseURL = 'http://localhost:3000';
+        this.baseURL = 'http://localhost:3001';
         this.currentUser = null;
         this.token = localStorage.getItem('auth_token');
         this.init();
@@ -29,7 +29,7 @@ class SimpleAuthClient {
         if (!this.token) return null;
         
         try {
-            const response = await fetch(`${this.baseURL}/api/auth/user`, {
+            const response = await fetch(`${this.baseURL}/api/auth/get-session`, {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
                 }

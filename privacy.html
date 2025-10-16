@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Privacy Policy | Sanrico Mercantile Inc.</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        /* Page specific styles */
+        .policy-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .policy-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .policy-title {
+            font-size: 2.5rem;
+            color: #e63946;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .last-updated {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .policy-intro {
+            font-size: 1.2rem;
+            color: #555;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .policy-section {
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #e63946;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .section-content {
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .section-content p {
+            margin-bottom: 1rem;
+        }
+
+        .section-content ul,
+        .section-content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        .section-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-box {
+            background: #f0f7ff;
+            border: 1px solid #e63946;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .contact-info {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .contact-info h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .contact-info p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .privacy-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #16a34a;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .policy-container {
+                padding: 1rem;
+            }
+
+            .policy-title {
+                font-size: 2rem;
+            }
+
+            .policy-section {
+                padding: 1rem;
+            }
+
+            .data-table {
+                font-size: 0.9rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="social-links">
+                <span><marquee>Let's build something great together!</marquee></span>
+            </div>
+            <div class="user-links">
+                <div class="notification-container">
+                    <button class="notification-btn" id="notificationBtn">
+                        <span class="notification-label">Notifications</span>
+                        <i class="fa fa-bell notification-icon"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                            <button class="clear-all-btn" id="clearAllBtn">Clear All</button>
+                    </div>
+                        <div class="notification-list" id="notificationList">
+                            <!-- Notifications will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                <a href="#" id="topLoginBtn">Login</a>
+                <div id="userDropdown" class="user-dropdown" style="display:none;">
+                  <a href="profile.html" class="dropdown-item">My Account</a>
+                  <a href="order-history.html" class="dropdown-item">Order History</a>
+                  <a href="addresses.html" class="dropdown-item">My Addresses</a>
+                  <a href="#" id="logoutBtn" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo-container">
+                <a href="index.html" class="logo-link">
+                    <div class="logo-wrapper" data-tooltip="Take me home">
+                        <img src="images/sanrico_logo_1.png" alt="Sanrico Mercantile Logo" class="logo-img">
+                    </div>
+                    <span class="logo">
+                        <span>Sanrico</span> <span>Mercantile</span>
+                    </span>
+                </a>
+            </div>
+            <form class="header-search">
+                <input type="text" placeholder="Search for products..." />
+                <button type="submit">
+                    <svg width="20" height="20" fill="none" stroke="#e53935" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </button>
+            </form>
+            <div class="header-icons">
+                <a href="#" class="cart-btn" id="cartBtn">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </a>
+                <div class="cart-dropdown" id="cartDropdown" style="display: none;">
+                  <div class="cart-dropdown-content" id="cartDropdownContent">
+                    <!-- Content will be filled by JS -->
+                  </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop</a>
+                <a href="aboutus.html">About Us</a>
+
+                <!-- Information Dropdown Menu -->
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" id="policiesDropdown">
+                        Information
+                        <i class="fa fa-chevron-down dropdown-arrow"></i>
+                    </button>
+                    <div class="nav-dropdown-menu" id="policiesDropdownMenu">
+                        <a href="terms.html" class="dropdown-item">Terms and Conditions</a>
+                        <a href="privacy.html" class="dropdown-item">Privacy Policy</a>
+                        <a href="security.html" class="dropdown-item">Online Security & Safety</a>
+                        <a href="faq.html" class="dropdown-item">FAQs</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="policy-container">
+        <div class="policy-header">
+            <div class="privacy-badge">
+                <i class="fa fa-shield"></i>
+                Your Privacy is Protected
+            </div>
+            <h1 class="policy-title">Privacy Policy</h1>
+            <p class="last-updated">Last Updated: October 13, 2025</p>
+            <p class="policy-intro">
+                At Sanrico Mercantile Inc., we respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website and services.
+            </p>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">1. Information We Collect</h2>
+            <div class="section-content">
+                <p>We collect information you provide and data obtained automatically when using our website:</p>
+
+                <h3>Information You Provide:</h3>
+                <ul>
+                    <li>Account details (name, email, phone, password)</li>
+                    <li>Profile information (addresses, preferences)</li>
+                    <li>Order details and payment information</li>
+                    <li>Communications and feedback</li>
+                </ul>
+
+                <h3>Automatic Collection:</h3>
+                <ul>
+                    <li>Device information (IP address, browser type)</li>
+                    <li>Usage data (pages visited, time on site)</li>
+                    <li>Cookies and tracking technologies</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">2. How We Use Your Information</h2>
+            <div class="section-content">
+                <p>We use collected information for:</p>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Purpose</th>
+                                <th>Legal Basis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Process orders and payments</td>
+                                <td>Contract fulfillment</td>
+                            </tr>
+                            <tr>
+                                <td>Provide customer support</td>
+                                <td>Legitimate interest</td>
+                            </tr>
+                            <tr>
+                                <td>Improve website and services</td>
+                                <td>Legitimate interest</td>
+                            </tr>
+                            <tr>
+                                <td>Prevent fraud and ensure security</td>
+                                <td>Legal obligation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">3. Information Sharing</h2>
+            <div class="section-content">
+                <p>We do not sell your personal information. We may share data only with:</p>
+
+                <h3>Service Providers:</h3>
+                <ul>
+                    <li>Payment processors for secure transactions</li>
+                    <li>Shipping companies for delivery</li>
+                    <li>IT services for website maintenance</li>
+                </ul>
+
+                <h3>Legal Requirements:</h3>
+                <ul>
+                    <li>When required by law</li>
+                    <li>To protect rights and safety</li>
+                    <li>In response to legal requests</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">4. Data Security and Rights</h2>
+            <div class="section-content">
+                <p><strong>Security Measures:</strong> We use encryption, secure servers, and regular audits to protect your data. All payments processed through PCI DSS compliant providers.</p>
+
+                <p><strong>Your Rights:</strong></p>
+                <ul>
+                    <li>Access your personal information</li>
+                    <li>Correct inaccurate data</li>
+                    <li>Request deletion (subject to legal requirements)</li>
+                    <li>Object to certain data uses</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <strong>Contact us</strong> to exercise these rights. We respond within 30 days.
+                </div>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <h2 class="section-title">5. Contact and Updates</h2>
+            <div class="section-content">
+                <p><strong>Cookies:</strong> We use essential, performance, and functional cookies. You can control cookies through browser settings.</p>
+
+                <p><strong>Data Retention:</strong> We keep information as long as needed for services, legal compliance, and business purposes.</p>
+
+                <div class="contact-info">
+                    <h3>Privacy Team Contact</h3>
+                    <p><i class="fa fa-envelope"></i> Email: privacy@sanricomercantile.com</p>
+                    <p><i class="fa fa-phone"></i> Phone: (555) 123-4567</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="shop.html?category=paints">Paints and Painting Supplies</a></li>
+                        <li><a href="shop.html?category=tools-accessories">Tools and Accessories</a></li>
+                        <li><a href="shop.html?category=building-materials-aggregates">Building Materials and Aggregates</a></li>
+                        <li><a href="shop.html?category=electrical-supplies">Electrical Supplies</a></li>
+                        <li><a href="shop.html?category=plumbing-fixtures">Plumbing and Fixtures</a></li>
+                        <li><a href="shop.html?category=fasteners-consumables">Fasteners and Consumables</a></li>
+                        <li><a href="shop.html?category=other">Other</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Information</h4>
+                    <ul>
+                        <li><a href="aboutus.html">About Us</a></li>
+                        <li><a href="faq.html">FAQs</a></li>
+                        <li><a href="terms.html">Terms and Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="security.html">Online Security & Safety</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="order-history.html">Order History</a></li>
+                        <li><a href="addresses.html">My Addresses</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Us</h4>
+                    <ul>
+                        <li>Regalado Avenue</li>
+                        <li>Fairview, Quezon City</li>
+                        <li>Phone: (555) 123-4567</li>
+                        <li>Email: <a href="mailto:support@sanricomercantile@gmail.com">support@sanricomercantile@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 Sanrico Mercantile Inc. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <script src="js/toast.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/headerSearch.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/addressModal.js"></script>
+
+    <!-- Policies Dropdown Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const policiesDropdown = document.getElementById('policiesDropdown');
+            const policiesDropdownMenu = document.getElementById('policiesDropdownMenu');
+
+            if (policiesDropdown && policiesDropdownMenu) {
+                // Toggle dropdown on click
+                policiesDropdown.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Close other open dropdowns first
+                    document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+                        if (toggle !== policiesDropdown) {
+                            toggle.classList.remove('active');
+                        }
+                    });
+
+                    // Toggle current dropdown
+                    const isActive = policiesDropdown.classList.contains('active');
+                    policiesDropdown.classList.toggle('active');
+
+                    // Close dropdown if it was already active
+                    if (isActive) {
+                        policiesDropdown.classList.remove('active');
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!policiesDropdown.contains(e.target) && !policiesDropdownMenu.contains(e.target)) {
+                        policiesDropdown.classList.remove('active');
+                    }
+                });
+
+                // Close dropdown on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && policiesDropdown.classList.contains('active')) {
+                        policiesDropdown.classList.remove('active');
+                    }
+                });
+
+                // Handle dropdown item clicks
+                const dropdownItems = policiesDropdownMenu.querySelectorAll('.dropdown-item');
+                dropdownItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        // Get the href and navigate to it
+                        const href = this.getAttribute('href');
+                        if (href && href !== '#') {
+                            window.location.href = href;
+                        }
+                        // Close dropdown after item selection
+                        policiesDropdown.classList.remove('active');
+                    });
+                });
+
+                // Mobile touch support
+                if ('ontouchstart' in window) {
+                    policiesDropdown.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                    });
+                }
+            }
+        });
+    </script>
+
+    <!-- Scroll to Top functionality -->
+    <script>
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>

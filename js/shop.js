@@ -5,6 +5,8 @@ let currentPage = 1;
 const productsPerPage = 12;
 let currentMode = 'drag'; // 'drag' or 'multi'
 // Multi-mode removed - drag and drop only
+// Pagination window state (5 pages at a time)
+let paginationStart = 1; // first page number currently shown in the window
 
 // Loading functions
 function showLoadingProducts() {
@@ -236,6 +238,9 @@ function filterAndSortProducts(selectedCategory = null) {
             products: filteredProducts
         });
         
+        // Reset pagination window when filters change
+        paginationStart = 1;
+        currentPage = 1;
         displayProducts(filteredProducts);
         updateProductCount();
     }, 500);
@@ -310,19 +315,11 @@ function displayProducts(productsToDisplay = filteredProducts) {
                 </div>
             </a>
             
-            <!-- Stock and dropdowns outside the product link -->
+            <!-- Stock only - no dropdowns -->
             <div class="product-details">
                 <div class="product-stock">
                     <span class="stock-label">Stock:</span>
                     <span class="stock-amount">${product.stockQuantity}</span>
-                </div>
-                <div class="product-filters">
-                    <select class="subcategory-dropdown">
-                        <option value="">Subcategory</option>
-                    </select>
-                    <select class="brand-dropdown">
-                        <option value="">Brand</option>
-                    </select>
                 </div>
             </div>
             
@@ -363,38 +360,7 @@ function displayProducts(productsToDisplay = filteredProducts) {
         }
     });
 
-    // Add event listeners to product-level dropdowns
-    document.querySelectorAll('.subcategory-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('change', (e) => {
-            console.log('Product subcategory changed:', e.target.value);
-            // TODO: Implement individual product subcategory filtering
-        });
-        
-        // Prevent dropdown clicks from triggering product link
-        dropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-        
-        dropdown.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
-        });
-    });
-
-    document.querySelectorAll('.brand-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('change', (e) => {
-            console.log('Product brand changed:', e.target.value);
-            // TODO: Implement individual product brand filtering
-        });
-        
-        // Prevent dropdown clicks from triggering product link
-        dropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-        
-        dropdown.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
-        });
-    });
+    // Product-level dropdowns removed - no event listeners needed
 
     // Drag and drop mode only - no click listeners needed
 
@@ -440,17 +406,62 @@ function handleDragEnd(e) {
 function updatePagination() {
     const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
     const pagination = document.getElementById('pagination');
+    if (!pagination) return;
     pagination.innerHTML = '';
 
-    for (let i = 1; i <= totalPages; i++) {
-        const button = document.createElement('button');
-        button.textContent = i;
-        button.className = i === currentPage ? 'active' : '';
-        button.onclick = () => {
-            currentPage = i;
+    if (totalPages <= 1) return; // no pagination needed
+
+    const windowSize = 5;
+    // Ensure paginationStart is valid
+    const maxStart = Math.max(1, totalPages - windowSize + 1);
+    if (paginationStart > maxStart) paginationStart = maxStart;
+    if (paginationStart < 1) paginationStart = 1;
+
+    const windowEnd = Math.min(paginationStart + windowSize - 1, totalPages);
+
+    // Helper to create a page button
+    const createPageBtn = (label, page, isActive = false) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        if (isActive) btn.className = 'active';
+        btn.onclick = () => {
+            currentPage = page;
+            // Shift window if the chosen page is outside current window
+            const desiredStart = Math.floor((page - 1) / windowSize) * windowSize + 1;
+            if (desiredStart !== paginationStart) paginationStart = desiredStart;
             displayProducts();
         };
-        pagination.appendChild(button);
+        return btn;
+    };
+
+    // If there are pages before the window, show first and a back ellipsis
+    if (paginationStart > 1) {
+        pagination.appendChild(createPageBtn('1', 1, currentPage === 1));
+        const backEllipsis = document.createElement('button');
+        backEllipsis.textContent = '…';
+        backEllipsis.onclick = () => {
+            paginationStart = Math.max(1, paginationStart - windowSize);
+            displayProducts();
+        };
+        pagination.appendChild(backEllipsis);
+    }
+
+    // Current window of pages
+    for (let i = paginationStart; i <= windowEnd; i++) {
+        pagination.appendChild(createPageBtn(String(i), i, i === currentPage));
+    }
+
+    // If there are pages after the window, show a forward ellipsis and last page
+    if (windowEnd < totalPages) {
+        const fwdEllipsis = document.createElement('button');
+        fwdEllipsis.textContent = '…';
+        fwdEllipsis.onclick = () => {
+            paginationStart = windowEnd + 1;
+            displayProducts();
+        };
+        pagination.appendChild(fwdEllipsis);
+
+        pagination.appendChild(createPageBtn(String(totalPages), totalPages, currentPage === totalPages));
     }
 }
 
@@ -648,9 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Setup mode toggle functionality
     setupModeToggle();
-    
-    // Product-level dropdowns will be handled individually per product
-    
+
     // Multi-mode removed - drag and drop only
 });
 
@@ -672,9 +681,7 @@ function resetFilters() {
         searchInput.value = '';
     }
     
-    // Reset product-level dropdowns
-    document.querySelectorAll('.subcategory-dropdown').forEach(dropdown => dropdown.value = '');
-    document.querySelectorAll('.brand-dropdown').forEach(dropdown => dropdown.value = '');
+    // Product-level dropdowns removed - no need to reset them
     
     // Reset category selection
     document.querySelectorAll('.category-link').forEach(link => link.classList.remove('active'));

@@ -710,6 +710,18 @@ window.showRegistrationModal = function(tab = 'user-signup') {
     
     if (registrationModal) {
         registrationModal.classList.add('show');
+        // trigger minimal open animation
+        const content = registrationModal.querySelector('.modal-content');
+        if (content) {
+            content.classList.remove('modal-opening');
+            // restart animation
+            void content.offsetWidth;
+            content.classList.add('modal-opening');
+            content.addEventListener('animationend', function handler(){
+                content.classList.remove('modal-opening');
+                content.removeEventListener('animationend', handler);
+            });
+        }
         
         // Set the correct title based on tab
         const modalTitle = registrationModal.querySelector('.modal-title');
@@ -761,6 +773,18 @@ window.showLoginModal = function() {
     
     if (loginModal) {
         loginModal.classList.add('show');
+        // trigger minimal open animation
+        const content = loginModal.querySelector('.modal-content');
+        if (content) {
+            content.classList.remove('modal-opening');
+            // restart animation
+            void content.offsetWidth;
+            content.classList.add('modal-opening');
+            content.addEventListener('animationend', function handler(){
+                content.classList.remove('modal-opening');
+                content.removeEventListener('animationend', handler);
+            });
+        }
         
         // Set login modal title
         const modalTitle = loginModal.querySelector('.modal-title');
@@ -839,7 +863,7 @@ window.handleSignupSubmission = async function() {
         console.log('Attempting to sign up with MongoDB backend...');
         
         // First, check if email already exists
-        const emailCheckResponse = await fetch('http://localhost:3000/api/auth/check-email', {
+        const emailCheckResponse = await fetch('http://localhost:3001/api/auth/check-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -859,7 +883,7 @@ window.handleSignupSubmission = async function() {
         
         // Step 1: Create and save verification code to AuthCodes collection
         console.log('Creating verification code in AuthCodes collection...');
-        const codeResponse = await fetch('http://localhost:3000/api/auth/create-verification-code', {
+        const codeResponse = await fetch('http://localhost:3001/api/auth/create-verification-code', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -894,7 +918,7 @@ window.handleSignupSubmission = async function() {
 
         // Step 2: Send verification email with the code
         console.log('Sending verification email...');
-        const emailResponse = await fetch('http://localhost:3000/api/auth/send-verification-email', {
+        const emailResponse = await fetch('http://localhost:3001/api/auth/send-verification-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1029,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
             try {
                 // Use your MongoDB login endpoint directly
-                const response = await fetch('http://localhost:3000/api/auth/login', {
+                const response = await fetch('http://localhost:3001/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1212,7 +1236,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             try {
                 // Send password reset email via n8n
-                const response = await fetch('http://localhost:3000/api/auth/send-password-reset', {
+                const response = await fetch('http://localhost:3001/api/auth/send-password-reset', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1308,7 +1332,7 @@ window.handleCancelVerification = async function(email) {
         }
         
         // Invalidate all codes for this email
-        const response = await fetch('http://localhost:3000/api/auth/invalidate-codes', {
+        const response = await fetch('http://localhost:3001/api/auth/invalidate-codes', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1370,7 +1394,7 @@ window.handleVerificationSubmit = async function(email) {
         }
 
         // Verify code using AuthCodes collection
-        const verificationResponse = await fetch('http://localhost:3000/api/auth/verify-code', {
+        const verificationResponse = await fetch('http://localhost:3001/api/auth/verify-code', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1390,7 +1414,7 @@ window.handleVerificationSubmit = async function(email) {
         console.log('✅ Verification code verified from AuthCodes collection');
 
         // Complete registration in MongoDB
-        const registrationResponse = await fetch('http://localhost:3000/api/auth/complete-registration', {
+        const registrationResponse = await fetch('http://localhost:3001/api/auth/complete-registration', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1445,7 +1469,7 @@ window.handleResendCode = async function(email) {
 
         // Step 1: Create and save new verification code to AuthCodes collection
         console.log('Creating new verification code in AuthCodes collection...');
-        const codeResponse = await fetch('http://localhost:3000/api/auth/create-verification-code', {
+        const codeResponse = await fetch('http://localhost:3001/api/auth/create-verification-code', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1465,7 +1489,7 @@ window.handleResendCode = async function(email) {
         console.log('✅ New verification code saved to AuthCodes collection');
 
         // Step 2: Send new verification email
-        const emailResponse = await fetch('http://localhost:3000/api/auth/send-verification-email', {
+        const emailResponse = await fetch('http://localhost:3001/api/auth/send-verification-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

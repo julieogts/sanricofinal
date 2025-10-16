@@ -416,7 +416,7 @@
     <div class="top-bar">
         <div class="container">
             <div class="social-links">
-                <span>Welcome to</span>
+                <span><marquee>Let's build something great together!</marquee></span>
             </div>
             <div class="user-links">
                 <div class="notification-container">
@@ -480,6 +480,20 @@
                 <a href="shop.html" class="active">Shop</a>
                 <a href="aboutus.html">About Us</a>
                 <a href="faq.html">FAQ</a>
+
+                <!-- Information Dropdown Menu -->
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" id="policiesDropdown">
+                        Information
+                        <i class="fa fa-chevron-down dropdown-arrow"></i>
+                    </button>
+                    <div class="nav-dropdown-menu" id="policiesDropdownMenu">
+                        <a href="terms.html" class="dropdown-item">Terms and Conditions</a>
+                        <a href="privacy.html" class="dropdown-item">Privacy Policy</a>
+                        <a href="security.html" class="dropdown-item">Online Security & Safety</a>
+                        <a href="faq.html" class="dropdown-item">FAQs</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -535,14 +549,14 @@
                     <button id="clearFiltersBtn" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); background: none; border: none; color: #e63946; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa fa-times"></i> Clear Filters
                     </button>
-                    
+
                     <!-- Drag & Drop Note -->
                     <div class="drag-drop-note" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 0.5rem; background: rgba(230, 57, 70, 0.1); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid rgba(230, 57, 70, 0.2);">
                         <i class="fa fa-hand-grab-o" style="color: #e63946; font-size: 0.9rem;"></i>
                         <span style="font-size: 0.85rem; color: #e63946; font-weight: 500;">Drag the 🛒 of an item into the cart for easier shopping</span>
                         </div>
-                    
-                    
+
+
                     <div class="sort-group" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 0.5rem;">
                         <span style="font-size: 0.9rem; color: #666;">Sort by</span>
                         <select id="sort-by" style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; width: 120px;">
@@ -790,7 +804,9 @@
                     <ul>
                         <li><a href="aboutus.html">About Us</a></li>
                         <li><a href="faq.html">FAQ</a></li>
-                        <li><a href="profile.html">User Info</a></li>
+                        <li><a href="terms.html">Terms and Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="security.html">Online Security & Safety</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -946,6 +962,65 @@
             if (result.success) {
                 document.getElementById('loginModal').classList.remove('show');
                 window.location.reload(); // Reload to update header
+            }
+        }
+
+        // Policies Dropdown Functionality
+        const policiesDropdown = document.getElementById('policiesDropdown');
+        const policiesDropdownMenu = document.getElementById('policiesDropdownMenu');
+
+        if (policiesDropdown && policiesDropdownMenu) {
+            // Toggle dropdown on click
+            policiesDropdown.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Close other open dropdowns first
+                document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+                    if (toggle !== policiesDropdown) {
+                        toggle.classList.remove('active');
+                    }
+                });
+
+                // Toggle current dropdown
+                const isActive = policiesDropdown.classList.contains('active');
+                policiesDropdown.classList.toggle('active');
+
+                // Close dropdown if it was already active
+                if (isActive) {
+                    policiesDropdown.classList.remove('active');
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!policiesDropdown.contains(e.target) && !policiesDropdownMenu.contains(e.target)) {
+                    policiesDropdown.classList.remove('active');
+                }
+            });
+
+            // Close dropdown on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && policiesDropdown.classList.contains('active')) {
+                    policiesDropdown.classList.remove('active');
+                }
+            });
+
+            // Handle dropdown item clicks
+            const dropdownItems = policiesDropdownMenu.querySelectorAll('.dropdown-item');
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Close dropdown after item selection
+                    policiesDropdown.classList.remove('active');
+                });
+            });
+
+            // Mobile touch support
+            if ('ontouchstart' in window) {
+                policiesDropdown.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                });
             }
         }
 

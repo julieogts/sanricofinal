@@ -482,7 +482,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             overflow: hidden;
-            height: 300px; /* tighter */
+            height: 240px; /* smaller height */
             display: flex;
             flex-direction: column;
         }
@@ -505,7 +505,7 @@
 
         .featured .product-img {
             position: relative;
-            height: 150px; /* more compact */
+            height: 120px; /* reduced image height */
             overflow: hidden;
             flex: 0 0 150px;
         }
@@ -591,13 +591,13 @@
             .featured .product-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
         }
         @media (max-width: 1024px) {
-            .featured .product-card { height: 280px; }
-            .featured .product-img { height: 140px; flex-basis: 140px; }
+            .featured .product-card { height: 220px; }
+            .featured .product-img { height: 110px; flex-basis: 110px; }
         }
         @media (max-width: 768px) {
             .featured .product-grid { gap: 12px; }
-            .featured .product-card { height: 260px; }
-            .featured .product-img { height: 130px; flex-basis: 130px; }
+            .featured .product-card { height: 200px; }
+            .featured .product-img { height: 100px; flex-basis: 100px; }
         }
         
         /* Carousel products grid: fixed card sizes and responsive wrapping */
@@ -647,6 +647,26 @@
             color: #333;
             line-height: 1.3;
         }
+
+        /* Scroll Reveal Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(22px);
+            filter: blur(2px);
+            transition: opacity 600ms ease, transform 600ms ease, filter 600ms ease;
+            will-change: opacity, transform, filter;
+        }
+        .reveal.in-view {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
+        }
+        .reveal.slide-left { transform: translateX(18px); }
+        .reveal.slide-right { transform: translateX(-18px); }
+        .reveal.zoom-in { transform: scale(0.98); }
+        .reveal.slide-left.in-view,
+        .reveal.slide-right.in-view,
+        .reveal.zoom-in.in-view { transform: none; }
 
         /* Featured product details styling */
         .featured .product-details {
@@ -852,7 +872,21 @@
                 <a href="index.html" class="active">Home</a>
                 <a href="shop.html">Shop</a>
                 <a href="aboutus.html">About Us</a>
-                <a href="faq.html">FAQ</a>
+                
+
+                <!-- Information Dropdown Menu -->
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" id="policiesDropdown">
+                        Information
+                        <i class="fa fa-chevron-down dropdown-arrow"></i>
+                    </button>
+                    <div class="nav-dropdown-menu" id="policiesDropdownMenu">
+                        <a href="terms.html" class="dropdown-item">Terms and Conditions</a>
+                        <a href="privacy.html" class="dropdown-item">Privacy Policy</a>
+                        <a href="security.html" class="dropdown-item">Online Security & Safety</a>
+                        <a href="faq.html" class="dropdown-item">FAQs</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -1122,15 +1156,13 @@
                     <h4>Information</h4>
                     <ul>
                         <li><a href="aboutus.html">About Us</a></li>
+                        <li><a href="faq.html">FAQs</a></li>
+                        <li><a href="terms.html">Terms and Conditions</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="security.html">Online Security & Safety</a></li>
                         <li><a href="profile.html">User Info</a></li>
                     </ul>
-                    <h5>Policies</h5>
-                    <ul>
-                        <li><a href="faq.html">FAQ</a></li>
-                        <li><a href="terms.html">Terms & Conditions</a></li>
-                        <li><a href="online-security.html">Online Security & Safety</a></li>
-                        <li><a href="privacy.html">Privacy Policy</a></li>
-                    </ul>
+
                 </div>
                 <div class="footer-col">
                     <h4>Quick Links</h4>
@@ -1370,16 +1402,9 @@
                     });
                 }
 
-                // Update featured products - get 3 random products from different categories
-                const featuredProducts = [];
-                const categories = Object.keys(productsByCategory);
-                for (let i = 0; i < 3 && i < categories.length; i++) {
-                    const categoryProducts = productsByCategory[categories[i]];
-                    if (categoryProducts.length > 0) {
-                        const randomIndex = Math.floor(Math.random() * categoryProducts.length);
-                        featuredProducts.push(categoryProducts[randomIndex]);
-                    }
-                }
+                // Update featured products - show 5 random products
+                const shuffled = products.slice().sort(() => Math.random() - 0.5);
+                const featuredProducts = shuffled.slice(0, Math.min(5, shuffled.length));
 
                 const featuredGrid = document.querySelector('.featured .product-grid');
                 if (featuredGrid) {
@@ -1502,110 +1527,150 @@
             showSignupBtn.addEventListener('click', showRegistrationModal);
         }
 
-        // Handle signup form submission
-        const signupForm = document.getElementById('userSignupSubmitBtn');
-        if (signupForm) {
-            signupForm.addEventListener('click', async function(e) {
-                e.preventDefault();
-                
-                const fullName = document.getElementById('signup-fullname').value.trim();
-                const email = document.getElementById('signup-email').value.trim();
-                const password = document.getElementById('signup-password').value;
-                const confirmPassword = document.getElementById('signup-confirm-password').value;
-                
-                // Validation
-                if (!fullName || !email || !password || !confirmPassword) {
-                    showToast('Please fill in all fields', 'error');
-                    return;
-                }
-                
-                if (password !== confirmPassword) {
-                    showToast('Passwords do not match', 'error');
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    showToast('Password must be at least 6 characters long', 'error');
-                    return;
-                }
-                
-                // Check if email is valid
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    showToast('Please enter a valid email address', 'error');
-                    return;
-                }
-                
-                // Show loading state
-                signupForm.disabled = true;
-                signupForm.textContent = 'Creating Account...';
-                
-                try {
-                    // Create user object
-                    const userData = {
-                        id: Date.now().toString(), // Simple ID generation
-                        fullName: fullName,
-                        email: email,
-                        password: password, // In a real app, this should be hashed
-                        provider: 'email',
-                        isStaff: false,
-                        createdAt: new Date().toISOString()
-                    };
-                    
-                    // Check if user already exists
-                    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-                    if (existingUsers.find(user => user.email === email)) {
-                        showToast('An account with this email already exists', 'error');
-                        return;
-                    }
-                    
-                    // Add new user to users array
-                    existingUsers.push(userData);
-                    localStorage.setItem('users', JSON.stringify(existingUsers));
-                    
-                    // Log the user in automatically
-                    Auth.setCurrentUser(userData);
-                    
-                    // Close modal and show success
-                    const registrationModal = document.getElementById('registrationModal');
-                    if (registrationModal) {
-                        registrationModal.classList.remove('show');
-                    }
-                    
-                    showToast(`Welcome, ${fullName}! Your account has been created successfully.`, 'success');
-                    
-                    // Update UI
-                    Auth.updateUIAfterLogin();
-                    
-                    // Clear form fields
-                    document.getElementById('signup-fullname').value = '';
-                    document.getElementById('signup-email').value = '';
-                    document.getElementById('signup-password').value = '';
-                    document.getElementById('signup-confirm-password').value = '';
-                    
-                    // Show address modal for new users
-                    setTimeout(() => {
-                        if (typeof showAddressModal === 'function') {
-                            showAddressModal(true);
-                        }
-                    }, 1000);
-                    
-                } catch (error) {
-                    console.error('Error during signup:', error);
-                    showToast('Signup failed. Please try again.', 'error');
-                } finally {
-                    // Reset button state
-                    signupForm.disabled = false;
-                    signupForm.textContent = 'Create Account';
-                }
-            });
-        }
+        // Signup submission is handled in js/login.js (email verification + n8n flow)
 
         // Removed old carousel functionality (image slides) – background video is used now
+
+        // Policies Dropdown Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const policiesDropdown = document.getElementById('policiesDropdown');
+            const policiesDropdownMenu = document.getElementById('policiesDropdownMenu');
+
+            if (policiesDropdown && policiesDropdownMenu) {
+                // Toggle dropdown on click
+                policiesDropdown.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Close other open dropdowns first
+                    document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+                        if (toggle !== policiesDropdown) {
+                            toggle.classList.remove('active');
+                        }
+                    });
+
+                    // Toggle current dropdown
+                    const isActive = policiesDropdown.classList.contains('active');
+                    policiesDropdown.classList.toggle('active');
+
+                    // Close dropdown if it was already active
+                    if (isActive) {
+                        policiesDropdown.classList.remove('active');
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!policiesDropdown.contains(e.target) && !policiesDropdownMenu.contains(e.target)) {
+                        policiesDropdown.classList.remove('active');
+                    }
+                });
+
+                // Close dropdown on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && policiesDropdown.classList.contains('active')) {
+                        policiesDropdown.classList.remove('active');
+                    }
+                });
+
+                // Handle dropdown item clicks
+                const dropdownItems = policiesDropdownMenu.querySelectorAll('.dropdown-item');
+                dropdownItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Close dropdown after item selection
+                        policiesDropdown.classList.remove('active');
+
+                        // Here you can add navigation logic for each policy page
+                        const itemText = this.textContent.trim();
+                        console.log('Selected policy:', itemText);
+
+                        // Navigate to the actual page
+                        if (itemText === 'Terms and Conditions') {
+                            window.location.href = 'terms.html';
+                        } else if (itemText === 'Privacy Policy') {
+                            window.location.href = 'privacy.html';
+                        } else if (itemText === 'Online Security & Safety') {
+                            window.location.href = 'security.html';
+                        } else if (itemText === 'FAQs') {
+                            window.location.href = 'faq.html';
+                        }
+                    });
+                });
+
+                // Mobile touch support
+                if ('ontouchstart' in window) {
+                    policiesDropdown.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                    });
+                }
+            }
+        });
     </script>
 
     <!-- Sidebar JavaScript Functionality -->
     <script>
+        // Scroll reveal bootstrapper
+        (function(){
+            function addRevealTargets(){
+                // Elements to animate on scroll (exclude header, nav, hero/video, and footer)
+                var groups = [
+                    '.categories .section-title',
+                    '.category-tabs > *',
+                    '.carousel-products .category-card',
+                    '.featured .section-title',
+                    '.featured .product-card'
+                ];
+                groups.forEach(function(sel){
+                    document.querySelectorAll(sel).forEach(function(el, idx){
+                        if (!el.classList.contains('reveal')) {
+                            el.classList.add('reveal');
+                            el.style.transitionDelay = (Math.min(idx, 8) * 60) + 'ms';
+                        }
+                    });
+                });
+
+                // Explicitly remove reveal from sections that should stay still
+                var exclusions = [
+                    '.top-bar *',
+                    'header *',
+                    '.main-nav *',
+                    '.hero-carousel *',
+                    'footer *'
+                ];
+                exclusions.forEach(function(sel){
+                    document.querySelectorAll(sel).forEach(function(el){
+                        el.classList.remove('reveal', 'in-view');
+                        el.style.transitionDelay = '';
+                    });
+                });
+            }
+
+            function initObserver(){
+                var io = new IntersectionObserver(function(entries){
+                    entries.forEach(function(entry){
+                        if (entry.isIntersecting){
+                            entry.target.classList.add('in-view');
+                            io.unobserve(entry.target);
+                        }
+                    });
+                }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
+
+                document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function(){ addRevealTargets(); initObserver(); });
+            } else {
+                addRevealTargets(); initObserver();
+            }
+
+            // Rerun after dynamic product render
+            window.addEventListener('load', function(){
+                setTimeout(function(){ addRevealTargets(); initObserver(); }, 150);
+            });
+        })();
+        
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('retractableSidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
